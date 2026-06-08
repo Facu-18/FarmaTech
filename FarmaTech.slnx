@@ -1,3 +1,8 @@
 <Solution>
+  <Project Path="FarmaTech.BD/FarmaTech.BD.csproj" />
+  <Project Path="FarmaTech.Cliente/FarmaTech.Cliente.csproj" />
+  <Project Path="FarmaTech.Repository/FarmaTech.Repository.csproj" />
   <Project Path="FarmaTech.Server/FarmaTech.Server.csproj" />
+  <Project Path="FarmaTech.Servicios/FarmaTech.Servicios.csproj" />
+  <Project Path="FarmaTech.Shared/FarmaTech.Shared.csproj" />
 </Solution>

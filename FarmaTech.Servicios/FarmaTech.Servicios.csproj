@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FarmaTech.Shared\FarmaTech.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

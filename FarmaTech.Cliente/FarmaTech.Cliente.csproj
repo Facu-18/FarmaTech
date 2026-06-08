@@ -12,4 +12,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.8" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FarmaTech.Servicios\FarmaTech.Servicios.csproj" />
+    <ProjectReference Include="..\FarmaTech.Shared\FarmaTech.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
