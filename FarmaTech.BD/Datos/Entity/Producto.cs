@@ -11,9 +11,5 @@ namespace FarmaTech.BD.Datos.Entity
         public string Categoria { get; set; } = string.Empty;
         public decimal Precio { get; set; }
         public string Estado { get; set; } = string.Empty;
-
-        public ICollection<DetalleVenta> DetallesVenta { get; set; } = new List<DetalleVenta>();
-        public ICollection<NotaPedido> NotasPedido { get; set; } = new List<NotaPedido>();
-        public ICollection<IngresoMercaderia> IngresosMercaderia { get; set; } = new List<IngresoMercaderia>();
     }
 }

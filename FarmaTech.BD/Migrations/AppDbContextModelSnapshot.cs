@@ -274,13 +274,13 @@ namespace FarmaTech.BD.Migrations
             modelBuilder.Entity("FarmaTech.BD.Datos.Entity.DetalleVenta", b =>
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
-                        .WithMany("DetallesVenta")
+                        .WithMany()
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Venta", "Venta")
-                        .WithMany("DetallesVenta")
+                        .WithMany()
                         .HasForeignKey("VentaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -293,19 +293,19 @@ namespace FarmaTech.BD.Migrations
             modelBuilder.Entity("FarmaTech.BD.Datos.Entity.IngresoMercaderia", b =>
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Drogueria", "Drogueria")
-                        .WithMany("IngresosMercaderia")
+                        .WithMany()
                         .HasForeignKey("DrogueriaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
-                        .WithMany("IngresosMercaderia")
+                        .WithMany()
                         .HasForeignKey("EmpleadaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
-                        .WithMany("IngresosMercaderia")
+                        .WithMany()
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -320,19 +320,19 @@ namespace FarmaTech.BD.Migrations
             modelBuilder.Entity("FarmaTech.BD.Datos.Entity.NotaPedido", b =>
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Drogueria", "Drogueria")
-                        .WithMany("NotasPedido")
+                        .WithMany()
                         .HasForeignKey("DrogueriaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
-                        .WithMany("NotasPedido")
+                        .WithMany()
                         .HasForeignKey("EmpleadaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
-                        .WithMany("NotasPedido")
+                        .WithMany()
                         .HasForeignKey("ProductoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -347,42 +347,12 @@ namespace FarmaTech.BD.Migrations
             modelBuilder.Entity("FarmaTech.BD.Datos.Entity.Venta", b =>
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
-                        .WithMany("Ventas")
+                        .WithMany()
                         .HasForeignKey("EmpleadaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Empleada");
-                });
-
-            modelBuilder.Entity("FarmaTech.BD.Datos.Entity.Drogueria", b =>
-                {
-                    b.Navigation("IngresosMercaderia");
-
-                    b.Navigation("NotasPedido");
-                });
-
-            modelBuilder.Entity("FarmaTech.BD.Datos.Entity.Empleada", b =>
-                {
-                    b.Navigation("IngresosMercaderia");
-
-                    b.Navigation("NotasPedido");
-
-                    b.Navigation("Ventas");
-                });
-
-            modelBuilder.Entity("FarmaTech.BD.Datos.Entity.Producto", b =>
-                {
-                    b.Navigation("DetallesVenta");
-
-                    b.Navigation("IngresosMercaderia");
-
-                    b.Navigation("NotasPedido");
-                });
-
-            modelBuilder.Entity("FarmaTech.BD.Datos.Entity.Venta", b =>
-                {
-                    b.Navigation("DetallesVenta");
                 });
 #pragma warning restore 612, 618
         }

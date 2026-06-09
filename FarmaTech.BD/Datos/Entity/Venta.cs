@@ -11,7 +11,5 @@ namespace FarmaTech.BD.Datos.Entity
 
         public DateTime Fecha { get; set; }
         public decimal Total { get; set; }
-
-        public ICollection<DetalleVenta> DetallesVenta { get; set; } = new List<DetalleVenta>();
     }
 }

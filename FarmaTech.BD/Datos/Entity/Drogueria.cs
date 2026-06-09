@@ -8,8 +8,5 @@ namespace FarmaTech.BD.Datos.Entity
         public string Nombre { get; set; } = string.Empty;
         public string CanalContacto { get; set; } = string.Empty;
         public string Contacto { get; set; } = string.Empty;
-
-        public ICollection<NotaPedido> NotasPedido { get; set; } = new List<NotaPedido>();
-        public ICollection<IngresoMercaderia> IngresosMercaderia { get; set; } = new List<IngresoMercaderia>();
     }
 }
