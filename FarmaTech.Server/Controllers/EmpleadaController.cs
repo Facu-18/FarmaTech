@@ -1,5 +1,6 @@
 ﻿using FarmaTech.BD.Datos;
 using FarmaTech.BD.Datos.Entity;
+using FarmaTech.Repository.Repositorios;
 using FarmaTech.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +12,27 @@ namespace FarmaTech.Server.Controllers
     public class EmpleadaController : Controller
     {
         private readonly AppDbContext context;
+        private readonly IEmpleadaRepositorio repositorio;
 
-        public EmpleadaController(AppDbContext context) { 
+        public EmpleadaController(AppDbContext context, IEmpleadaRepositorio repositorio) {
         
             this.context = context;
+            this.repositorio = repositorio;
         
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Empleada>>> Get()
         {
-            var empleadas = await context.Empleadas.ToListAsync();
+            //var empleadas = await context.Empleadas.ToListAsync();
+            var empleadas = await repositorio.Select();
+            return Ok(empleadas);
+        }
+
+        [HttpGet("usuario-pin")]
+        public async Task<ActionResult<List<Empleada>>> GetWithPin()
+        {
+            var empleadas = await repositorio.ObtenerUsuariosConPin();
             return Ok(empleadas);
         }
 
