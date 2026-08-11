@@ -11,20 +11,15 @@ namespace FarmaTech.Server.Controllers
     [Route("api/empleada")]
     public class EmpleadaController : Controller
     {
-        private readonly AppDbContext context;
         private readonly IEmpleadaRepositorio repositorio;
 
-        public EmpleadaController(AppDbContext context, IEmpleadaRepositorio repositorio) {
-        
-            this.context = context;
+        public EmpleadaController(IEmpleadaRepositorio repositorio) {
             this.repositorio = repositorio;
-        
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Empleada>>> Get()
         {
-            //var empleadas = await context.Empleadas.ToListAsync();
             var empleadas = await repositorio.Select();
             return Ok(empleadas);
         }
@@ -44,14 +39,15 @@ namespace FarmaTech.Server.Controllers
             empleada.Apellido = empleadaDTO.Apellido;
             empleada.Usuario = empleadaDTO.Usuario;
             empleada.Pin = empleadaDTO.Pin;
-            context.Empleadas.Add(empleada);
-            await context.SaveChangesAsync();
+
+            await repositorio.Insert(empleada);
+            
             return Ok(empleada.Nombre);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<EmpleadaDTO>> GetById(int id) { 
-            var empleada = await context.Empleadas.FirstOrDefaultAsync(e => e.Id == id);
+        public async Task<ActionResult<EmpleadaDTO>> GetById(int id) {
+            var empleada = await repositorio.SelectById(id);
             if(empleada == null)
             {
                 return NotFound($"No se encontro la empleada de id: {id}");
@@ -65,14 +61,12 @@ namespace FarmaTech.Server.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<string>> Put(int id, EmpleadaDTO empleadaDTO)
+        public async Task<ActionResult<bool>> Put(int id, EmpleadaDTO empleadaDTO)
         {
-            var empleada = await context.Empleadas
-                .FirstOrDefaultAsync(e => e.Id == id);
-
+            var empleada = await repositorio.SelectById(id);
             if (empleada == null)
             {
-                return NotFound($"No se encontró la empleada con id: {id}");
+                return NotFound($"No existe el registro con id: {id}");
             }
 
             empleada.Nombre = empleadaDTO.Nombre;
@@ -80,24 +74,21 @@ namespace FarmaTech.Server.Controllers
             empleada.Usuario = empleadaDTO.Usuario;
             empleada.Pin = empleadaDTO.Pin;
 
-            await context.SaveChangesAsync();
+            var resultado = await repositorio.Update(empleada);
 
-            return Ok(empleada.Nombre);
+            return Ok(resultado);
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult<bool>> Delete(int id) {
-            var empleada = await context.Empleadas
-                    .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (empleada == null)
+            var resultado = await repositorio.Delete(id);
+            if (!resultado)
             {
-                return NotFound($"No se encontró la empleada con id: {id}");
+                return NotFound($"No existe el registro con id: {id}");
             }
 
-            context.Empleadas.Remove(empleada);
-            await context.SaveChangesAsync();
-            return Ok();
+            return Ok(true);
         }
     }
 }
