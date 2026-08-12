@@ -30,10 +30,15 @@ namespace FarmaTech.Repository.Repositorios
 
         }
 
+        public async Task<bool> Existe(int id)
+        {
+            bool existe = await context.Set<E>().AnyAsync(x => x.Id == id);
+            return existe;
+        }
+
         public async Task<bool> Update(E entity)
         {
-            bool existe = await context.Set<E>().AnyAsync(e => e.Id == entity.Id);
-            if (!existe)
+            if (!await Existe(entity.Id))
             {
                 return false;
             }
@@ -44,11 +49,12 @@ namespace FarmaTech.Repository.Repositorios
         }
 
         public async Task<bool> Delete(int id) {
-            var entidad = await context.Set<E>().FirstOrDefaultAsync(x => x.Id == id);
-            if (entidad == null)
+            if (!await Existe(id))
             {
                 return false;
             }
+
+            var entidad = await context.Set<E>().FirstAsync(x => x.Id == id);
             context.Set<E>().Remove(entidad);
             await context.SaveChangesAsync();
             return true;
