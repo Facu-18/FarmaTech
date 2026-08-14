@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmaTech.BD.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260814112849_Inicio")]
+    [Migration("20260814115705_Inicio")]
     partial class Inicio
     {
         /// <inheritdoc />
