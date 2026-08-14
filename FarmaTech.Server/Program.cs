@@ -1,4 +1,5 @@
 using FarmaTech.BD.Datos;
+using FarmaTech.BD.Datos.Entity;
 using FarmaTech.Repository.Repositorios;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IEmpleadaRepositorio, EmpleadaRepositorio>();
+builder.Services.AddScoped<IRepositorio<Producto>, Repositorio<Producto>>();
+builder.Services.AddScoped<IRepositorio<Drogueria>, Repositorio<Drogueria>>();
+builder.Services.AddScoped<IRepositorio<Venta>, Repositorio<Venta>>();
+builder.Services.AddScoped<IRepositorio<DetalleVenta>, Repositorio<DetalleVenta>>();
+builder.Services.AddScoped<IRepositorio<IngresoMercaderia>, Repositorio<IngresoMercaderia>>();
+builder.Services.AddScoped<IRepositorio<NotaPedido>, Repositorio<NotaPedido>>();
 
 var app = builder.Build();
 

@@ -42,20 +42,14 @@ namespace FarmaTech.BD.Migrations
                     b.Property<decimal>("PrecioUnitario")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Subtotal")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("VentaId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductoId");
+                    b.HasIndex("IdProducto");
 
-                    b.HasIndex("VentaId");
+                    b.HasIndex("IdVenta");
 
                     b.ToTable("DetalleVentas");
                 });
@@ -70,15 +64,18 @@ namespace FarmaTech.BD.Migrations
 
                     b.Property<string>("CanalContacto")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Contacto")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("Id");
 
@@ -95,11 +92,13 @@ namespace FarmaTech.BD.Migrations
 
                     b.Property<string>("Apellido")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Pin")
                         .IsRequired()
@@ -107,11 +106,13 @@ namespace FarmaTech.BD.Migrations
 
                     b.Property<string>("Rol")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Usuario")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -129,12 +130,6 @@ namespace FarmaTech.BD.Migrations
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
 
-                    b.Property<int>("DrogueriaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EmpleadaId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
@@ -147,16 +142,13 @@ namespace FarmaTech.BD.Migrations
                     b.Property<int>("IdProducto")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("DrogueriaId");
+                    b.HasIndex("IdDrogueria");
 
-                    b.HasIndex("EmpleadaId");
+                    b.HasIndex("IdEmpleada");
 
-                    b.HasIndex("ProductoId");
+                    b.HasIndex("IdProducto");
 
                     b.ToTable("IngresosMercaderia");
                 });
@@ -172,15 +164,10 @@ namespace FarmaTech.BD.Migrations
                     b.Property<int>("Cantidad")
                         .HasColumnType("int");
 
-                    b.Property<int>("DrogueriaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EmpleadaId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
@@ -194,16 +181,13 @@ namespace FarmaTech.BD.Migrations
                     b.Property<int>("IdProducto")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("DrogueriaId");
+                    b.HasIndex("IdDrogueria");
 
-                    b.HasIndex("EmpleadaId");
+                    b.HasIndex("IdEmpleada");
 
-                    b.HasIndex("ProductoId");
+                    b.HasIndex("IdProducto");
 
                     b.ToTable("NotasPedido");
                 });
@@ -218,23 +202,28 @@ namespace FarmaTech.BD.Migrations
 
                     b.Property<string>("Categoria")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Codigo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
@@ -252,9 +241,6 @@ namespace FarmaTech.BD.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EmpleadaId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
@@ -266,7 +252,7 @@ namespace FarmaTech.BD.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmpleadaId");
+                    b.HasIndex("IdEmpleada");
 
                     b.ToTable("Ventas");
                 });
@@ -275,13 +261,13 @@ namespace FarmaTech.BD.Migrations
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
                         .WithMany()
-                        .HasForeignKey("ProductoId")
+                        .HasForeignKey("IdProducto")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Venta", "Venta")
                         .WithMany()
-                        .HasForeignKey("VentaId")
+                        .HasForeignKey("IdVenta")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -294,19 +280,19 @@ namespace FarmaTech.BD.Migrations
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Drogueria", "Drogueria")
                         .WithMany()
-                        .HasForeignKey("DrogueriaId")
+                        .HasForeignKey("IdDrogueria")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
                         .WithMany()
-                        .HasForeignKey("EmpleadaId")
+                        .HasForeignKey("IdEmpleada")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
                         .WithMany()
-                        .HasForeignKey("ProductoId")
+                        .HasForeignKey("IdProducto")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -321,19 +307,19 @@ namespace FarmaTech.BD.Migrations
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Drogueria", "Drogueria")
                         .WithMany()
-                        .HasForeignKey("DrogueriaId")
+                        .HasForeignKey("IdDrogueria")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
                         .WithMany()
-                        .HasForeignKey("EmpleadaId")
+                        .HasForeignKey("IdEmpleada")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
                         .WithMany()
-                        .HasForeignKey("ProductoId")
+                        .HasForeignKey("IdProducto")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -348,7 +334,7 @@ namespace FarmaTech.BD.Migrations
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
                         .WithMany()
-                        .HasForeignKey("EmpleadaId")
+                        .HasForeignKey("IdEmpleada")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

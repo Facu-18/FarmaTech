@@ -55,7 +55,8 @@ namespace FarmaTech.Server.Controllers
 
             var empleada = await repositorio.SelectById(id);
             EmpleadaDTO dto = new EmpleadaDTO();
-            dto.Nombre = empleada.Nombre;
+            dto.Nombre = empleada!.Nombre;
+            dto.Apellido = empleada.Apellido;
             dto.Usuario = empleada.Usuario;
             dto.Pin = empleada.Pin;
 
