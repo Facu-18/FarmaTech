@@ -1,97 +1,151 @@
-﻿using FarmaTech.BD.Datos;
 using FarmaTech.BD.Datos.Entity;
-using FarmaTech.Repository.Repositorios;
+using FarmaTech.Server.Autenticacion;
 using FarmaTech.Shared.DTO;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmaTech.Server.Controllers
 {
     [ApiController]
+    [Authorize(Roles = Roles.Administrador)]
     [Route("api/empleada")]
-    public class EmpleadaController : Controller
+    public class EmpleadaController : ControllerBase
     {
-        private readonly IEmpleadaRepositorio repositorio;
+        private readonly UserManager<Empleada> userManager;
 
-        public EmpleadaController(IEmpleadaRepositorio repositorio) {
-            this.repositorio = repositorio;
+        public EmpleadaController(UserManager<Empleada> userManager)
+        {
+            this.userManager = userManager;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Empleada>>> Get()
+        public async Task<ActionResult<List<EmpleadaResponseDTO>>> Get()
         {
-            var empleadas = await repositorio.Select();
-            return Ok(empleadas);
-        }
+            List<Empleada> empleadas = await userManager.Users
+                .AsNoTracking()
+                .ToListAsync();
+            var response = new List<EmpleadaResponseDTO>(empleadas.Count);
 
-        [HttpGet("usuario-pin")] // Get ejemplo usando  un metodo especifico de EmpleadaRepositorio y no de el repositorio generico
-        public async Task<ActionResult<List<Empleada>>> GetWithPin()
-        {
-            var empleadas = await repositorio.ObtenerUsuariosConPin();
-            return Ok(empleadas);
-        }
+            foreach (Empleada empleada in empleadas)
+            {
+                response.Add(await ToResponseAsync(empleada));
+            }
 
-        [HttpPost]
-        public async Task <ActionResult<string>> Post(EmpleadaDTO empleadaDTO)
-        {
-            Empleada empleada = new Empleada();
-            empleada.Nombre = empleadaDTO.Nombre;
-            empleada.Rol = "empleada";
-            empleada.Apellido = empleadaDTO.Apellido;
-            empleada.Usuario = empleadaDTO.Usuario;
-            empleada.Pin = empleadaDTO.Pin;
-
-            await repositorio.Insert(empleada);
-            
-            return Ok(empleada.Nombre);
+            return Ok(response);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<EmpleadaDTO>> GetById(int id) {
-            if (!await repositorio.Existe(id))
+        public async Task<ActionResult<EmpleadaResponseDTO>> GetById(int id)
+        {
+            Empleada? empleada = await userManager.FindByIdAsync(id.ToString());
+
+            if (empleada is null)
             {
-                return NotFound($"No se encontro la empleada de id: {id}");
+                return NotFound($"No se encontro la empleada con id: {id}");
             }
 
-            var empleada = await repositorio.SelectById(id);
-            EmpleadaDTO dto = new EmpleadaDTO();
-            dto.Nombre = empleada!.Nombre;
-            dto.Apellido = empleada.Apellido;
-            dto.Usuario = empleada.Usuario;
-            dto.Pin = empleada.Pin;
+            return Ok(await ToResponseAsync(empleada));
+        }
 
-            return Ok(dto);
+        [HttpPost]
+        public async Task<ActionResult<EmpleadaResponseDTO>> Post(EmpleadaDTO dto)
+        {
+            var empleada = new Empleada
+            {
+                Nombre = dto.Nombre,
+                Apellido = dto.Apellido,
+                UserName = dto.Usuario
+            };
+
+            IdentityResult createResult = await userManager.CreateAsync(empleada, dto.Pin);
+
+            if (!createResult.Succeeded)
+            {
+                return IdentityErrors(createResult);
+            }
+
+            IdentityResult roleResult = await userManager.AddToRoleAsync(empleada, Roles.Empleada);
+
+            if (!roleResult.Succeeded)
+            {
+                await userManager.DeleteAsync(empleada);
+                return IdentityErrors(roleResult);
+            }
+
+            EmpleadaResponseDTO response = await ToResponseAsync(empleada);
+            return CreatedAtAction(nameof(GetById), new { id = empleada.Id }, response);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<bool>> Put(int id, EmpleadaDTO empleadaDTO)
+        public async Task<ActionResult<EmpleadaResponseDTO>> Put(int id, EmpleadaDTO dto)
         {
-            if (!await repositorio.Existe(id))
+            Empleada? empleada = await userManager.FindByIdAsync(id.ToString());
+
+            if (empleada is null)
             {
-                return NotFound($"No existe el registro con id: {id}");
+                return NotFound($"No existe la empleada con id: {id}");
             }
 
-            var empleada = await repositorio.SelectById(id);
-            empleada!.Nombre = empleadaDTO.Nombre;
-            empleada.Apellido = empleadaDTO.Apellido;
-            empleada.Usuario = empleadaDTO.Usuario;
-            empleada.Pin = empleadaDTO.Pin;
+            empleada.Nombre = dto.Nombre;
+            empleada.Apellido = dto.Apellido;
+            empleada.UserName = dto.Usuario;
 
-            var resultado = await repositorio.Update(empleada);
+            string resetToken = await userManager.GeneratePasswordResetTokenAsync(empleada);
+            IdentityResult result = await userManager.ResetPasswordAsync(
+                empleada,
+                resetToken,
+                dto.Pin);
 
-            return Ok(resultado);
+            if (!result.Succeeded)
+            {
+                return IdentityErrors(result);
+            }
+
+            return Ok(await ToResponseAsync(empleada));
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<bool>> Delete(int id) {
-            if (!await repositorio.Existe(id))
+        public async Task<ActionResult> Delete(int id)
+        {
+            Empleada? empleada = await userManager.FindByIdAsync(id.ToString());
+
+            if (empleada is null)
             {
-                return NotFound($"No existe el registro con id: {id}");
+                return NotFound($"No existe la empleada con id: {id}");
             }
 
-            await repositorio.Delete(id);
+            IdentityResult result = await userManager.DeleteAsync(empleada);
 
-            return Ok(true);
+            if (!result.Succeeded)
+            {
+                return IdentityErrors(result);
+            }
+
+            return NoContent();
+        }
+
+        private async Task<EmpleadaResponseDTO> ToResponseAsync(Empleada empleada)
+        {
+            IList<string> roles = await userManager.GetRolesAsync(empleada);
+
+            return new EmpleadaResponseDTO
+            {
+                Id = empleada.Id,
+                Nombre = empleada.Nombre,
+                Apellido = empleada.Apellido,
+                Usuario = empleada.UserName ?? string.Empty,
+                Rol = roles.FirstOrDefault() ?? string.Empty
+            };
+        }
+
+        private ActionResult IdentityErrors(IdentityResult result)
+        {
+            return BadRequest(new
+            {
+                Errors = result.Errors.Select(error => error.Description)
+            });
         }
     }
 }
