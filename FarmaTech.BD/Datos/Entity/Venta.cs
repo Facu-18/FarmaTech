@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FarmaTech.BD.Datos;
+using Microsoft.EntityFrameworkCore;
 
 namespace FarmaTech.BD.Datos.Entity
 {
@@ -17,6 +18,7 @@ namespace FarmaTech.BD.Datos.Entity
         public DateTime Fecha { get; set; }
 
         [Range(typeof(decimal), "0.01", "9999999999999999.99", ErrorMessage = "El total debe ser mayor que cero.")]
+        [Precision(18, 2)]
         public decimal Total { get; set; }
     }
 }

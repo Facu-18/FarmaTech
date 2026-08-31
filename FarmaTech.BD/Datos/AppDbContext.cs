@@ -1,10 +1,12 @@
 ﻿using FarmaTech.BD.Datos.Entity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace FarmaTech.BD.Datos
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<Empleada, IdentityRole<int>, int>
     {
         public DbSet<DetalleVenta> DetalleVentas { get; set; } = null!;
         public DbSet<Drogueria> Droguerias { get; set; } = null!;
@@ -17,6 +19,13 @@ namespace FarmaTech.BD.Datos
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Empleada>().ToTable("Empleadas");
         }
 
     }

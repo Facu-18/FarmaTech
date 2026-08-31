@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FarmaTech.BD.Datos;
+using Microsoft.EntityFrameworkCore;
 
 namespace FarmaTech.BD.Datos.Entity
 {
@@ -23,6 +24,7 @@ namespace FarmaTech.BD.Datos.Entity
         public string Categoria { get; set; } = string.Empty;
 
         [Range(typeof(decimal), "0.01", "9999999999999999.99", ErrorMessage = "El precio debe ser mayor que cero.")]
+        [Precision(18, 2)]
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "El estado es obligatorio.")]

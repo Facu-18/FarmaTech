@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FarmaTech.BD.Datos;
+using Microsoft.EntityFrameworkCore;
 
 namespace FarmaTech.BD.Datos.Entity
 {
@@ -22,9 +23,11 @@ namespace FarmaTech.BD.Datos.Entity
         public int Cantidad { get; set; }
 
         [Range(typeof(decimal), "0.01", "9999999999999999.99", ErrorMessage = "El precio unitario debe ser mayor que cero.")]
+        [Precision(18, 2)]
         public decimal PrecioUnitario { get; set; }
 
         [Range(typeof(decimal), "0.01", "9999999999999999.99", ErrorMessage = "El subtotal debe ser mayor que cero.")]
+        [Precision(18, 2)]
         public decimal Subtotal { get; set; }
     }
 }
