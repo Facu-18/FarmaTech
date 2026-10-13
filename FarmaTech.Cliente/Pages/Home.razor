@@ -2,21 +2,48 @@
 
 <PageTitle>FarmaTech</PageTitle>
 
-<h1>FarmaTech</h1>
+<div class="ft-pagina">
+    <AuthorizeView>
+        <Authorized>
+            <header class="ft-encabezado">
+                <div>
+                    <h1>Hola, @context.User.Identity?.Name</h1>
+                    <p class="ft-subtitulo">¿Qué desea hacer hoy?</p>
+                </div>
+                <span class="ft-chip">
+                    <Icono Nombre="usuario" Tamano="16" />
+                    @context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                </span>
+            </header>
 
-<AuthorizeView>
-    <Authorized>
-        <p class="lead">Sesión iniciada como <strong>@context.User.Identity?.Name</strong>.</p>
-        <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary" href="ventas/nueva">Registrar venta</a>
-            <a class="btn btn-outline-primary" href="productos">Productos</a>
-            <AuthorizeView Roles="Encargada" Context="encargada">
-                <a class="btn btn-outline-primary" href="productos/nuevo">Nuevo producto</a>
-            </AuthorizeView>
-        </div>
-    </Authorized>
-    <NotAuthorized>
-        <p class="lead">Sistema de gestión de la farmacia.</p>
-        <a class="btn btn-primary" href="login">Iniciar sesión</a>
-    </NotAuthorized>
-</AuthorizeView>
+            <div class="home-grilla">
+                <a class="home-tile home-tile-principal" href="ventas/nueva">
+                    <span class="home-tile-icono"><Icono Nombre="venta" Tamano="30" /></span>
+                    <span class="home-tile-titulo">Registrar venta</span>
+                    <span class="home-tile-desc">Buscar productos y cobrar una venta.</span>
+                </a>
+                <a class="home-tile" href="productos">
+                    <span class="home-tile-icono"><Icono Nombre="productos" Tamano="30" /></span>
+                    <span class="home-tile-titulo">Productos</span>
+                    <span class="home-tile-desc">Consultar el catálogo, precios y estados.</span>
+                </a>
+                <AuthorizeView Roles="Encargada" Context="encargada">
+                    <a class="home-tile" href="productos/nuevo">
+                        <span class="home-tile-icono"><Icono Nombre="nuevo" Tamano="30" /></span>
+                        <span class="home-tile-titulo">Nuevo producto</span>
+                        <span class="home-tile-desc">Dar de alta un producto en el catálogo.</span>
+                    </a>
+                </AuthorizeView>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <header class="ft-encabezado">
+                <div>
+                    <h1>FarmaTech</h1>
+                    <p class="ft-subtitulo">Sistema de gestión de la farmacia.</p>
+                </div>
+            </header>
+            <a class="btn btn-primary btn-lg" href="login"><Icono Nombre="usuario" /> Iniciar sesión</a>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>

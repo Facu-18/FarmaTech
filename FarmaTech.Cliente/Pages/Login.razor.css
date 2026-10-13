@@ -1,0 +1,51 @@
+.login-tarjeta {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem 1.75rem;
+    box-shadow: var(--ft-sombra-fuerte);
+}
+
+.login-marca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-tarjeta ::deep .login-logo {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 14px;
+}
+
+.login-nombre {
+    margin: .75rem 0 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ft-sidebar);
+}
+
+.login-sub {
+    margin: 0;
+    font-size: .85rem;
+    color: var(--ft-muted);
+}
+
+.login-titulo {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.login-descripcion {
+    margin: .25rem 0 1.25rem;
+    text-align: center;
+    color: var(--ft-muted);
+    font-size: .95rem;
+}
+
+.login-spinner {
+    border-color: rgba(255, 255, 255, .45);
+    border-top-color: #fff;
+}
