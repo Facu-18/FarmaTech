@@ -6,90 +6,125 @@
 
 <PageTitle>Productos</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Productos</h1>
-    <AuthorizeView Roles="Encargada">
-        <a class="btn btn-primary" href="productos/nuevo">Nuevo producto</a>
-    </AuthorizeView>
-</div>
-
-<form class="row g-2 mb-3" @onsubmit="Buscar" @onsubmit:preventDefault>
-    <div class="col">
-        <input class="form-control" placeholder="Buscar por nombre o código" @bind="texto" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary" disabled="@cargando">Buscar</button>
-        <button type="button" class="btn btn-outline-secondary" @onclick="Limpiar" disabled="@cargando">Ver todos</button>
-    </div>
-</form>
-
-@if (!string.IsNullOrEmpty(aviso))
-{
-    <div class="alert alert-success" role="alert">@aviso</div>
-}
-@if (!string.IsNullOrEmpty(error))
-{
-    <div class="alert alert-danger" role="alert">@error</div>
-}
-
-@if (cargando)
-{
-    <p>Cargando...</p>
-}
-else if (productos.Count == 0 && string.IsNullOrEmpty(error))
-{
-    <div class="alert alert-info" role="alert">No se encontraron productos.</div>
-}
-else if (productos.Count > 0)
-{
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th class="text-end">Precio</th>
-                    <th>Estado</th>
-                    <AuthorizeView Roles="Encargada">
-                        <th class="text-end">Acciones</th>
-                    </AuthorizeView>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in productos)
+<div class="ft-pagina">
+    <header class="ft-encabezado">
+        <div>
+            <h1>Productos</h1>
+            <p class="ft-subtitulo">
+                @if (cargando)
                 {
-                    var producto = p;
-                    <tr>
-                        <td>@producto.Codigo</td>
-                        <td>@producto.Nombre</td>
-                        <td>@producto.Categoria</td>
-                        <td class="text-end">@producto.Precio.ToString("C", Cultura)</td>
-                        <td>
-                            <span class="badge @(EstaActivo(producto) ? "text-bg-success" : "text-bg-secondary")">@(EstaActivo(producto) ? "Activo" : "Inactivo")</span>
-                        </td>
-                        <AuthorizeView Roles="Encargada">
-                            <td class="text-end text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary @(procesando ? "disabled" : null)"
-                                   href="productos/editar/@producto.Id">Editar</a>
-                                @if (EstaActivo(producto))
-                                {
-                                    <button type="button" class="btn btn-sm btn-outline-danger" disabled="@procesando"
-                                            @onclick="() => DarDeBaja(producto)">Dar de baja</button>
-                                }
-                                else
-                                {
-                                    <button type="button" class="btn btn-sm btn-outline-success" disabled="@procesando"
-                                            @onclick="() => Reactivar(producto)">Reactivar</button>
-                                }
-                            </td>
-                        </AuthorizeView>
-                    </tr>
+                    <text>Cargando catálogo...</text>
                 }
-            </tbody>
-        </table>
-    </div>
-}
+                else
+                {
+                    <text>@productos.Count @(productos.Count == 1 ? "producto" : "productos")</text>
+                }
+            </p>
+        </div>
+        <AuthorizeView Roles="Encargada">
+            <a class="btn btn-primary" href="productos/nuevo"><Icono Nombre="nuevo" /> Nuevo producto</a>
+        </AuthorizeView>
+    </header>
+
+    <form class="ft-tarjeta lp-barra" @onsubmit="Buscar" @onsubmit:preventDefault role="search">
+        <div class="lp-buscador">
+            <label for="buscar-producto" class="visually-hidden">Buscar producto por nombre o código</label>
+            <span class="lp-buscador-icono"><Icono Nombre="buscar" /></span>
+            <input id="buscar-producto" class="form-control lp-input" placeholder="Buscar por nombre o código" @bind="texto" />
+        </div>
+        <div class="lp-barra-botones">
+            <button type="submit" class="btn btn-primary" disabled="@cargando">Buscar</button>
+            <button type="button" class="btn btn-outline-secondary" @onclick="Limpiar" disabled="@cargando">Ver todos</button>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrEmpty(aviso))
+    {
+        <div class="alert alert-success" role="alert">@aviso</div>
+    }
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    @if (cargando)
+    {
+        <div class="ft-tarjeta ft-cargando" role="status">
+            <span class="ft-spinner" aria-hidden="true"></span> Cargando productos...
+        </div>
+    }
+    else if (productos.Count == 0 && string.IsNullOrEmpty(error))
+    {
+        <div class="ft-tarjeta ft-vacio" role="status">
+            <span class="ft-vacio-icono"><Icono Nombre="productos" Tamano="28" /></span>
+            <p class="ft-vacio-titulo">No se encontraron productos.</p>
+            <p>Pruebe con otro nombre o código, o vea todos los productos.</p>
+        </div>
+    }
+    else if (productos.Count > 0)
+    {
+        <div class="ft-tarjeta lp-tabla">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th class="text-end">Precio</th>
+                            <th>Estado</th>
+                            <AuthorizeView Roles="Encargada">
+                                <th class="text-end">Acciones</th>
+                            </AuthorizeView>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in productos)
+                        {
+                            var producto = p;
+                            <tr>
+                                <td class="lp-codigo">@producto.Codigo</td>
+                                <td>
+                                    <div class="lp-nombre">@producto.Nombre</div>
+                                    @if (!string.IsNullOrWhiteSpace(producto.Descripcion))
+                                    {
+                                        <div class="lp-desc" title="@producto.Descripcion">@producto.Descripcion</div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(producto.Categoria))
+                                    {
+                                        <span class="ft-chip">@producto.Categoria</span>
+                                    }
+                                </td>
+                                <td class="ft-monto">@producto.Precio.ToString("C", Cultura)</td>
+                                <td>
+                                    <span class="@(EstaActivo(producto) ? "ft-estado-activo" : "ft-estado-inactivo")">@(EstaActivo(producto) ? "Activo" : "Inactivo")</span>
+                                </td>
+                                <AuthorizeView Roles="Encargada">
+                                    <td class="text-end text-nowrap">
+                                        <a class="btn btn-sm btn-outline-primary @(procesando ? "disabled" : null)"
+                                           href="productos/editar/@producto.Id"><Icono Nombre="editar" Tamano="16" /> Editar</a>
+                                        @if (EstaActivo(producto))
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger" disabled="@procesando"
+                                                    @onclick="() => DarDeBaja(producto)"><Icono Nombre="baja" Tamano="16" /> Dar de baja</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-success" disabled="@procesando"
+                                                    @onclick="() => Reactivar(producto)"><Icono Nombre="reactivar" Tamano="16" /> Reactivar</button>
+                                        }
+                                    </td>
+                                </AuthorizeView>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private static readonly CultureInfo Cultura = new("es-AR");

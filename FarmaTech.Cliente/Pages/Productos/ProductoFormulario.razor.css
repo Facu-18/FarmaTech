@@ -1,0 +1,21 @@
+.pf-mono {
+    font-family: var(--ft-fuente-mono);
+}
+
+.pf-acciones {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: 1.5rem;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--ft-borde);
+    background: var(--ft-superficie);
+}
+
+@media (max-width: 575.98px) {
+    .pf-acciones .btn {
+        flex: 1;
+    }
+}

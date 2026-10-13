@@ -5,33 +5,46 @@
 
 <PageTitle>Editar producto</PageTitle>
 
-<h1 class="h3 mb-3">Editar producto</h1>
+<div class="ft-pagina cp-pagina">
+    <a class="ft-volver" href="productos"><Icono Nombre="volver" Tamano="18" /> Volver a productos</a>
 
-@if (cargando)
-{
-    <p>Cargando...</p>
-}
-else if (noEncontrado)
-{
-    <div class="alert alert-warning" role="alert">
-        Producto no encontrado.
-        <div class="mt-2"><a class="btn btn-outline-primary btn-sm" href="productos">Volver al listado</a></div>
-    </div>
-}
-else if (modelo is not null)
-{
-    @if (!string.IsNullOrEmpty(error))
+    <header class="ft-encabezado">
+        <div>
+            <h1>Editar producto</h1>
+            <p class="ft-subtitulo">Modifique los datos del producto y guarde los cambios.</p>
+        </div>
+    </header>
+
+    @if (cargando)
+    {
+        <div class="ft-tarjeta ft-cargando" role="status">
+            <span class="ft-spinner" aria-hidden="true"></span> Cargando...
+        </div>
+    }
+    else if (noEncontrado)
+    {
+        <div class="alert alert-warning" role="alert">
+            <strong>Producto no encontrado.</strong>
+            <div class="mt-2"><a class="btn btn-outline-primary btn-sm" href="productos">Volver al listado</a></div>
+        </div>
+    }
+    else if (modelo is not null)
+    {
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+
+        <div class="ft-tarjeta ft-tarjeta-cuerpo">
+            <ProductoFormulario Modelo="modelo" TextoBoton="Guardar cambios" Enviando="enviando"
+                                OnValidSubmit="Guardar" OnCancelar="Cancelar" />
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(error))
     {
         <div class="alert alert-danger" role="alert">@error</div>
     }
-
-    <ProductoFormulario Modelo="modelo" TextoBoton="Guardar cambios" Enviando="enviando"
-                        OnValidSubmit="Guardar" OnCancelar="Cancelar" />
-}
-else if (!string.IsNullOrEmpty(error))
-{
-    <div class="alert alert-danger" role="alert">@error</div>
-}
+</div>
 
 @code {
     [Parameter] public int Id { get; set; }

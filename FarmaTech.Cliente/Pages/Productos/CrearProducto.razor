@@ -5,28 +5,39 @@
 
 <PageTitle>Nuevo producto</PageTitle>
 
-<h1 class="h3 mb-3">Nuevo producto</h1>
+<div class="ft-pagina cp-pagina">
+    <a class="ft-volver" href="productos"><Icono Nombre="volver" Tamano="18" /> Volver a productos</a>
 
-@if (creado)
-{
-    <div class="alert alert-success" role="alert">
-        Producto creado correctamente.
-        <div class="mt-2 d-flex gap-2">
-            <button type="button" class="btn btn-primary btn-sm" @onclick="CrearOtro">Crear otro</button>
-            <a class="btn btn-outline-primary btn-sm" href="productos">Ir al listado</a>
+    <header class="ft-encabezado">
+        <div>
+            <h1>Nuevo producto</h1>
+            <p class="ft-subtitulo">Complete los datos para dar de alta un producto en el catálogo.</p>
         </div>
-    </div>
-}
-else
-{
-    @if (!string.IsNullOrEmpty(error))
-    {
-        <div class="alert alert-danger" role="alert">@error</div>
-    }
+    </header>
 
-    <ProductoFormulario Modelo="modelo" TextoBoton="Guardar" Enviando="enviando"
-                        OnValidSubmit="Guardar" OnCancelar="Cancelar" />
-}
+    @if (creado)
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Producto creado correctamente.</strong>
+            <div class="mt-2 d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary btn-sm" @onclick="CrearOtro">Crear otro</button>
+                <a class="btn btn-outline-primary btn-sm" href="productos">Ir al listado</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+
+        <div class="ft-tarjeta ft-tarjeta-cuerpo">
+            <ProductoFormulario Modelo="modelo" TextoBoton="Guardar" Enviando="enviando"
+                                OnValidSubmit="Guardar" OnCancelar="Cancelar" />
+        </div>
+    }
+</div>
 
 @code {
     private ProductoDTO modelo = NuevoModelo();
