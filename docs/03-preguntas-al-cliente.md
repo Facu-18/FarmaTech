@@ -109,7 +109,7 @@ La Encargada también puede realizar los casos de uso de la Empleada.
 ## Caso de uso seleccionado: Registrar Venta
 
 **Actor principal:** Empleada de mostrador.
-**Precondición:** la empleada inició sesión con su usuario y PIN.
+**Precondición:** la empleada inició sesión con su usuario y PIN. El producto debe estar cargado correctamente en el sistema y debe haber stock físico en la farmacia.
 **Garantía de éxito:** la venta queda registrada con el precio vigente, la fecha y la empleada que la realizó.
 
 **Flujo básico:**
@@ -125,9 +125,3 @@ La Encargada también puede realizar los casos de uso de la Empleada.
 - **El producto no está en el mostrador:** la empleada lo agrega a la nota de pedido con la cantidad y continúa con la venta.
 - **El producto no existe en el catálogo:** el sistema informa que no se encontró y la empleada avisa a la encargada para que lo dé de alta.
 - **Cancelación:** antes de confirmar, la empleada cancela y el sistema descarta la venta sin registrar nada.
-
-## Preguntas abiertas para una próxima iteración
-
-- ¿Qué estado toma un faltante una vez pedido (por ejemplo, Pedido) y quién lo marca?
-- Si el mismo producto se anota varias veces en el día, ¿se suman las cantidades en una sola línea?
-- ¿Se vende alguna vez por fracción (por ejemplo, blíster suelto)?
