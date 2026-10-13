@@ -88,6 +88,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmpleadaRepositorio, EmpleadaRepositorio>();
+builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 builder.Services.AddScoped<IRepositorio<Producto>, Repositorio<Producto>>();
 builder.Services.AddScoped<IRepositorio<Drogueria>, Repositorio<Drogueria>>();
 builder.Services.AddScoped<IRepositorio<Venta>, Repositorio<Venta>>();

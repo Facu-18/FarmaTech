@@ -9,9 +9,9 @@ namespace FarmaTech.Server.Controllers
     [Route("api/producto")]
     public class ProductoController : Controller
     {
-        private readonly IRepositorio<Producto> repositorio;
+        private readonly IProductoRepositorio repositorio;
 
-        public ProductoController(IRepositorio<Producto> repositorio) {
+        public ProductoController(IProductoRepositorio repositorio) {
             this.repositorio = repositorio;
         }
 
@@ -39,6 +39,43 @@ namespace FarmaTech.Server.Controllers
             dto.Estado = producto.Estado;
 
             return Ok(dto);
+        }
+
+        [HttpGet("codigo/{codigo}")]
+        public async Task<ActionResult<ProductoResponseDTO>> GetByCodigo(string codigo)
+        {
+            var producto = await repositorio.SelectByCodigo(codigo);
+            if (producto is null)
+            {
+                return NotFound($"No se encontro el producto con codigo: {codigo}");
+            }
+
+            return Ok(ToResponse(producto));
+        }
+
+        [HttpGet("buscar")]
+        public async Task<ActionResult<List<ProductoResponseDTO>>> Buscar([FromQuery] string? texto)
+        {
+            if (string.IsNullOrWhiteSpace(texto))
+            {
+                return BadRequest("Debe ingresar un texto de busqueda.");
+            }
+
+            var productos = await repositorio.Buscar(texto);
+            return Ok(productos.Select(ToResponse).ToList());
+        }
+
+        private static ProductoResponseDTO ToResponse(Producto producto)
+        {
+            ProductoResponseDTO dto = new ProductoResponseDTO();
+            dto.Id = producto.Id;
+            dto.Codigo = producto.Codigo;
+            dto.Nombre = producto.Nombre;
+            dto.Descripcion = producto.Descripcion;
+            dto.Categoria = producto.Categoria;
+            dto.Precio = producto.Precio;
+            dto.Estado = producto.Estado;
+            return dto;
         }
 
         [HttpPost]
