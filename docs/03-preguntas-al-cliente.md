@@ -62,9 +62,11 @@ Esta segunda entrevista confirma y ajusta los siguientes puntos del sistema Farm
 
 ## Preguntas pendientes para la próxima entrevista
 
-Propuestas a partir de vacíos detectados en la documentación. **No fueron formuladas ni respondidas todavía.**
+Propuestas a partir de vacíos detectados en la documentación. **Salvo las marcadas como resueltas, no fueron formuladas ni respondidas todavía.**
 
-1. **Estado del producto y de la nota.** El DER define `producto.estado` y `nota_pedido.estado`, pero ninguna fuente indica sus valores. ¿Qué significa el estado de un producto (por ejemplo, disponible o no disponible)? ¿Lo marca la empleada o cambia con el ingreso de mercadería? ¿Qué estados tiene una nota de pedido (por ejemplo, pendiente o pedida)?
+1. **Estado del producto y de la nota.** El DER define `producto.estado` y `nota_pedido.estado`, pero ninguna fuente indica sus valores.
+   - **Estado del producto — Resuelta:** el sistema no controla stock; la disponibilidad física la determina la empleada al momento de la venta y, si el producto no está, lo agrega a la nota de pedido. El estado del producto indica si está activo en el catálogo (Activo/Inactivo).
+   - **Estado de la nota — pendiente:** ¿qué estados tiene una nota de pedido (por ejemplo, pendiente o pedida)?
 2. **Productos que no están en el catálogo.** Cuando un cliente pide algo que el sistema no conoce, ¿quién lo da de alta y cuándo? ¿Alcanza con que la encargada lo cargue al día siguiente, o debería poder hacerlo la empleada en el momento?
 3. **Nota de pedido diaria.** ¿La nota es una lista por día? ¿Quién la da por cerrada o por pedida, y qué pasa con lo que quedó sin pedir? Si el mismo producto se anota varias veces en el día, ¿se suman las cantidades?
 4. **Unidades y presentaciones.** ¿Se vende y se pide por unidad, caja o fracción (por ejemplo, blíster)? ¿Un mismo medicamento con distintas presentaciones es un producto o varios?

@@ -6,11 +6,11 @@
 | **Actor principal** | Empleada de mostrador |
 | **Frecuencia** | Múltiples veces por día, en cada turno de atención |
 | **Precondiciones** | La empleada inició sesión con su usuario y PIN. La farmacia opera con reposición diaria: todo lo vendido se repone cada noche vía pedido a las droguerías. |
-| **Garantías de éxito** | La venta queda registrada con el precio vigente en el sistema. Si un producto no está disponible, se agrega a la nota de pedido para que Alicia gestione la reposición. |
+| **Garantías de éxito** | La venta queda registrada con el precio vigente en el sistema. Si la empleada constata que un producto no está en el mostrador, se agrega a la nota de pedido para que Alicia gestione la reposición. |
 
 ## Personal involucrado e intereses
 
-- **Empleada de mostrador:** registrar la venta de forma rápida y cobrar el precio correcto y actualizado. Si el producto no está disponible, agregarlo a la nota de pedido sin fricciones.
+- **Empleada de mostrador:** registrar la venta de forma rápida y cobrar el precio correcto y actualizado. Si el producto no está en el mostrador, agregarlo a la nota de pedido sin fricciones.
 - **Alicia (encargada / propietaria):** que las ventas queden registradas con el precio vigente para evitar errores de cobro. Que al cierre del día tenga disponible la nota de pedido consolidada para contactar a las droguerías sin depender de cuadernos manuales.
 
 ## Escenario principal de éxito (flujo básico)

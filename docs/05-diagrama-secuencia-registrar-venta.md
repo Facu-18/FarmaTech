@@ -13,10 +13,10 @@ sequenceDiagram
     loop por cada producto
         E->>S: BuscarProducto(texto: nombre o código)
         S-->>E: lista de coincidencias con descripción y precio vigente
-        alt producto disponible
+        alt la empleada confirma que el producto está en el mostrador
             E->>S: AgregarProducto(idProducto, cantidad)
             S-->>E: subtotal
-        else producto no disponible
+        else la empleada indica que el producto no está en el mostrador
             E->>S: AgregarANotaPedido(idProducto, cantidad)
             S-->>E: confirmación
         else producto no existe en el catálogo
@@ -32,7 +32,7 @@ sequenceDiagram
     end
 ```
 
-**Explicación.** La empleada inicia la venta y, por cada producto, busca por nombre parcial o código. Según el resultado: lo agrega a la venta (disponible), lo anota en la nota de pedido (no disponible) o recibe el aviso de que no existe en el catálogo. Al terminar, confirma la venta y recibe el total, o la cancela y no se registra nada.
+**Explicación.** La empleada inicia la venta y, por cada producto, busca por nombre parcial o código. Según el resultado: lo agrega a la venta (si ella constata que está en el mostrador), lo anota en la nota de pedido (si no está; el sistema no controla stock y es la empleada quien lo determina) o recibe el aviso de que no existe en el catálogo. Al terminar, confirma la venta y recibe el total, o la cancela y no se registra nada.
 
 **Cambios respecto a la versión anterior** (`CrearNuevaVenta()`, `BuscarArticulo(id)`, `ConfirmarCantidad(cantidad)`, `FinalizarVenta()`):
 
@@ -69,10 +69,10 @@ sequenceDiagram
         H-->>P: lista de productos
         P-->>E: muestra coincidencias
 
-        alt producto disponible
+        alt la empleada confirma que el producto está en el mostrador
             E->>P: selecciona producto y cantidad
             P-->>E: agrega ítem y muestra subtotal en pantalla
-        else producto no disponible
+        else la empleada indica que el producto no está en el mostrador
             E->>P: agregar a nota de pedido (idProducto, cantidad)
             P->>H: registrarFaltante(idProducto, cantidad, idDrogueria opcional)
             H->>NC: POST api/nota-pedido/faltante (Bearer JWT)
