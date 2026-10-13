@@ -7,15 +7,25 @@
 
 <PageTitle>Registrar venta</PageTitle>
 
-<h1 class="h3 mb-3">Registrar venta</h1>
+<div class="ft-pagina">
+    <header class="ft-encabezado">
+        <div>
+            <h1>Registrar venta</h1>
+            <p class="ft-subtitulo">Busque los productos, agréguelos a la venta y confirme el cobro.</p>
+        </div>
+    </header>
 
-@if (confirmacion is not null)
-{
-    <div class="card border-success">
-        <div class="card-header text-bg-success">Venta registrada</div>
-        <div class="card-body">
-            <p class="mb-1"><strong>N.º de venta:</strong> @confirmacion.IdVenta</p>
-            <p class="mb-3"><strong>Fecha:</strong> @confirmacion.Fecha.ToLocalTime().ToString("g", Cultura)</p>
+    @if (confirmacion is not null)
+    {
+        <section class="ft-tarjeta rv-confirmacion" aria-labelledby="rv-confirmacion-titulo">
+            <div class="rv-confirmacion-cabecera">
+                <span class="rv-check"><Icono Nombre="check" Tamano="32" /></span>
+                <h2 id="rv-confirmacion-titulo">Venta registrada</h2>
+                <p class="rv-confirmacion-meta">
+                    <span><strong>N.º de venta:</strong> @confirmacion.IdVenta</span>
+                    <span><strong>Fecha:</strong> @confirmacion.Fecha.ToLocalTime().ToString("g", Cultura)</span>
+                </p>
+            </div>
 
             <div class="table-responsive">
                 <table class="table table-sm align-middle">
@@ -32,163 +42,185 @@
                         {
                             <tr>
                                 <td>@d.Codigo - @d.Nombre</td>
-                                <td class="text-end">@d.Cantidad</td>
-                                <td class="text-end">@Moneda(d.PrecioUnitario)</td>
-                                <td class="text-end">@Moneda(d.Subtotal)</td>
+                                <td class="ft-monto">@d.Cantidad</td>
+                                <td class="ft-monto">@Moneda(d.PrecioUnitario)</td>
+                                <td class="ft-monto">@Moneda(d.Subtotal)</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
 
-            <p class="fs-4 mb-3"><strong>Total cobrado: @Moneda(confirmacion.Total)</strong></p>
-            <button type="button" class="btn btn-primary" @onclick="NuevaVenta">Nueva venta</button>
-        </div>
-    </div>
-}
-else
-{
-    @if (!string.IsNullOrEmpty(error))
-    {
-        <div class="alert alert-danger" role="alert">@error</div>
-    }
-    @if (!string.IsNullOrEmpty(aviso))
-    {
-        <div class="alert alert-success" role="alert">@aviso</div>
-    }
-
-    <form class="row g-2 mb-3" @onsubmit="Buscar" @onsubmit:preventDefault>
-        <div class="col">
-            <input class="form-control" placeholder="Buscar producto por nombre o código" @bind="texto" />
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary" disabled="@(buscando || enviando)">Buscar</button>
-        </div>
-    </form>
-
-    @if (buscando)
-    {
-        <p>Buscando...</p>
-    }
-    else if (resultados is not null && resultados.Count == 0)
-    {
-        <div class="alert alert-warning" role="alert">
-            Producto no encontrado. Avise a la encargada para darlo de alta.
-        </div>
-    }
-    else if (resultados is not null)
-    {
-        <p class="text-muted small mb-2">Si el producto no está en la farmacia, agréguelo a la nota de pedido.</p>
-        <div class="table-responsive mb-4">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th class="text-end">Precio vigente</th>
-                        <th style="min-width: 15rem;"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in resultados)
-                    {
-                        var producto = p;
-                        <tr>
-                            <td>@producto.Codigo</td>
-                            <td>@producto.Nombre</td>
-                            <td>@producto.Descripcion</td>
-                            <td class="text-end">@Moneda(producto.Precio)</td>
-                            <td>
-                                @if (faltanteAbierto == producto.Id)
-                                {
-                                    <div class="input-group input-group-sm">
-                                        <input type="number" min="1" class="form-control" aria-label="Cantidad a pedir"
-                                               @bind="cantidadFaltante" />
-                                        <button type="button" class="btn btn-warning" disabled="@(enviando || enviandoFaltante)"
-                                                @onclick="() => EnviarFaltante(producto)">Confirmar</button>
-                                        <button type="button" class="btn btn-outline-secondary" disabled="@enviandoFaltante"
-                                                @onclick="CerrarFaltante">Cerrar</button>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="d-flex flex-column gap-1">
-                                        <div class="input-group input-group-sm">
-                                            <input type="number" min="1" class="form-control" aria-label="Cantidad"
-                                                   @bind="cantidades[producto.Id]" />
-                                            <button type="button" class="btn btn-primary" disabled="@enviando"
-                                                    @onclick="() => Agregar(producto)">Agregar</button>
-                                        </div>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled="@enviando"
-                                                @onclick="() => AbrirFaltante(producto)">Agregar a nota de pedido</button>
-                                    </div>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-
-    <h2 class="h5">Venta actual</h2>
-
-    @if (carrito.Count == 0)
-    {
-        <p class="text-muted">Todavía no se agregaron productos.</p>
+            <div class="rv-confirmacion-pie">
+                <div class="rv-total-bloque">
+                    <span class="rv-total-etiqueta">Total cobrado</span>
+                    <span class="rv-total-monto ft-monto">@Moneda(confirmacion.Total)</span>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg" @onclick="NuevaVenta">
+                    <Icono Nombre="nuevo" /> Nueva venta
+                </button>
+            </div>
+        </section>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th style="width: 8rem;">Cantidad</th>
-                        <th class="text-end">Precio unitario</th>
-                        <th class="text-end">Subtotal</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var l in carrito)
-                    {
-                        var linea = l;
-                        <tr>
-                            <td>@linea.Codigo - @linea.Nombre</td>
-                            <td>
-                                <input type="number" min="1" class="form-control form-control-sm"
-                                       value="@linea.Cantidad" disabled="@enviando"
-                                       @onchange="e => CambiarCantidad(linea, e)" />
-                            </td>
-                            <td class="text-end">@Moneda(linea.PrecioUnitario)</td>
-                            <td class="text-end">@Moneda(linea.Subtotal)</td>
-                            <td class="text-end">
-                                <button type="button" class="btn btn-sm btn-outline-danger" disabled="@enviando"
-                                        @onclick="() => Quitar(linea)">Quitar</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colspan="3" class="text-end">Total estimado</th>
-                        <th class="text-end">@Moneda(TotalEstimado)</th>
-                        <th></th>
-                    </tr>
-                </tfoot>
-            </table>
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+        @if (!string.IsNullOrEmpty(aviso))
+        {
+            <div class="alert alert-success" role="alert">@aviso</div>
+        }
+
+        <div class="rv-grilla">
+            <section class="rv-busqueda" aria-label="Búsqueda de productos">
+                <form class="rv-buscador" @onsubmit="Buscar" @onsubmit:preventDefault role="search">
+                    <div class="rv-buscador-campo">
+                        <label for="buscar-venta" class="visually-hidden">Buscar producto por nombre o código</label>
+                        <span class="rv-buscador-icono"><Icono Nombre="buscar" Tamano="22" /></span>
+                        <input id="buscar-venta" @ref="buscador" class="form-control rv-input"
+                               placeholder="Buscar por nombre o código…" autocomplete="off" @bind="texto" />
+                    </div>
+                    <button type="submit" class="btn btn-primary rv-boton-buscar" disabled="@(buscando || enviando)">Buscar</button>
+                </form>
+
+                @if (buscando)
+                {
+                    <div class="ft-tarjeta ft-cargando" role="status">
+                        <span class="ft-spinner" aria-hidden="true"></span> Buscando...
+                    </div>
+                }
+                else if (resultados is not null && resultados.Count == 0)
+                {
+                    <div class="ft-tarjeta ft-vacio" role="alert">
+                        <span class="ft-vacio-icono"><Icono Nombre="buscar" Tamano="28" /></span>
+                        <p class="ft-vacio-titulo">Producto no encontrado.</p>
+                        <p>Avise a la encargada para darlo de alta.</p>
+                    </div>
+                }
+                else if (resultados is not null)
+                {
+                    <p class="rv-pista"><Icono Nombre="info" Tamano="16" /> Si el producto no está en la farmacia, agréguelo a la nota de pedido.</p>
+                    <ul class="rv-resultados">
+                        @foreach (var p in resultados)
+                        {
+                            var producto = p;
+                            <li class="rv-resultado ft-tarjeta">
+                                <div class="rv-resultado-info">
+                                    <span class="rv-resultado-nombre">@producto.Nombre</span>
+                                    <span class="rv-resultado-detalle">
+                                        <span class="rv-codigo">@producto.Codigo</span>
+                                        @if (!string.IsNullOrWhiteSpace(producto.Descripcion))
+                                        {
+                                            <span class="rv-desc">@producto.Descripcion</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="rv-resultado-precio ft-monto" aria-label="Precio vigente">@Moneda(producto.Precio)</div>
+                                <div class="rv-resultado-acciones">
+                                    @if (faltanteAbierto == producto.Id)
+                                    {
+                                        <div class="rv-faltante">
+                                            <label for="faltante-@producto.Id" class="rv-faltante-titulo">Cantidad a pedir</label>
+                                            <div class="input-group">
+                                                <input id="faltante-@producto.Id" type="number" min="1" class="form-control"
+                                                       aria-label="Cantidad a pedir" @bind="cantidadFaltante" />
+                                                <button type="button" class="btn btn-warning" disabled="@(enviando || enviandoFaltante)"
+                                                        @onclick="() => EnviarFaltante(producto)">Confirmar</button>
+                                                <button type="button" class="btn btn-outline-secondary" disabled="@enviandoFaltante"
+                                                        @onclick="CerrarFaltante">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="input-group rv-agregar">
+                                            <input type="number" min="1" class="form-control rv-cantidad" aria-label="Cantidad"
+                                                   @bind="cantidades[producto.Id]" />
+                                            <button type="button" class="btn btn-primary" disabled="@enviando"
+                                                    @onclick="() => Agregar(producto)"><Icono Nombre="nuevo" Tamano="18" /> Agregar</button>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-warning rv-nota" disabled="@enviando"
+                                                @onclick="() => AbrirFaltante(producto)"><Icono Nombre="nota" Tamano="16" /> Agregar a nota de pedido</button>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="ft-tarjeta ft-vacio">
+                        <span class="ft-vacio-icono"><Icono Nombre="buscar" Tamano="28" /></span>
+                        <p class="ft-vacio-titulo">Busque un producto para empezar</p>
+                        <p>Escriba el nombre o el código y presione Buscar.</p>
+                    </div>
+                }
+            </section>
+
+            <aside class="rv-ticket ft-tarjeta" aria-labelledby="rv-ticket-titulo">
+                <div class="rv-ticket-cabecera">
+                    <h2 id="rv-ticket-titulo">Venta actual</h2>
+                    <span class="ft-chip">@carrito.Count @(carrito.Count == 1 ? "producto" : "productos")</span>
+                </div>
+
+                @if (carrito.Count == 0)
+                {
+                    <div class="ft-vacio rv-ticket-vacio">
+                        <span class="ft-vacio-icono"><Icono Nombre="venta" Tamano="28" /></span>
+                        <p>Aún no hay productos en la venta.</p>
+                    </div>
+                }
+                else
+                {
+                    <ul class="rv-lineas">
+                        @foreach (var l in carrito)
+                        {
+                            var linea = l;
+                            <li class="rv-linea">
+                                <div class="rv-linea-info">
+                                    <span class="rv-linea-nombre">@linea.Nombre</span>
+                                    <span class="rv-linea-detalle">@linea.Codigo · @Moneda(linea.PrecioUnitario) c/u</span>
+                                </div>
+                                <div class="rv-linea-cantidad">
+                                    <label for="cant-@linea.IdProducto" class="visually-hidden">Cantidad de @linea.Nombre</label>
+                                    <input id="cant-@linea.IdProducto" type="number" min="1" class="form-control form-control-sm"
+                                           value="@linea.Cantidad" disabled="@enviando"
+                                           @onchange="e => CambiarCantidad(linea, e)" />
+                                </div>
+                                <div class="rv-linea-subtotal ft-monto">@Moneda(linea.Subtotal)</div>
+                                <button type="button" class="btn btn-sm btn-outline-danger rv-quitar" disabled="@enviando"
+                                        aria-label="Quitar @linea.Nombre de la venta" title="Quitar"
+                                        @onclick="() => Quitar(linea)"><Icono Nombre="cerrar" Tamano="16" /></button>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <div class="rv-total">
+                    <span class="rv-total-etiqueta">Total estimado</span>
+                    <span class="rv-total-monto ft-monto">@Moneda(TotalEstimado)</span>
+                </div>
+
+                <div class="rv-ticket-acciones">
+                    <button type="button" class="btn btn-primary btn-lg w-100" disabled="@(carrito.Count == 0 || enviando)" @onclick="Confirmar">
+                        @if (enviando)
+                        {
+                            <span class="ft-spinner rv-spinner" aria-hidden="true"></span>
+                        }
+                        else
+                        {
+                            <Icono Nombre="check" />
+                        }
+                        @(enviando ? "Registrando..." : "Confirmar venta")
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary w-100" disabled="@enviando" @onclick="Cancelar">Cancelar</button>
+                </div>
+            </aside>
         </div>
     }
-
-    <div class="d-flex gap-2 mt-3">
-        <button type="button" class="btn btn-success" disabled="@(carrito.Count == 0 || enviando)" @onclick="Confirmar">
-            @(enviando ? "Registrando..." : "Confirmar venta")
-        </button>
-        <button type="button" class="btn btn-outline-secondary" disabled="@enviando" @onclick="Cancelar">Cancelar</button>
-    </div>
-}
+</div>
 
 @code {
     private static readonly CultureInfo Cultura = new("es-AR");
@@ -216,6 +248,17 @@ else
     private bool enviandoFaltante;
     private int? faltanteAbierto;
     private int cantidadFaltante = 1;
+
+    // Presentational: keep the search box focused so the counter can scan/type right away
+    private ElementReference buscador;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await buscador.FocusAsync();
+        }
+    }
 
     private decimal TotalEstimado => carrito.Sum(l => l.Subtotal);
 

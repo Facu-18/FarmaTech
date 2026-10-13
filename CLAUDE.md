@@ -56,3 +56,5 @@ FarmaTech.Server ──> FarmaTech.Repository ──> FarmaTech.BD
 - `GET api/producto/buscar?texto=&incluirInactivos=false` — partial match on name or code (max 50, 400 if empty); inactive products are excluded unless `incluirInactivos=true` (the product list passes true, the sale page false).
 - `POST api/venta/registrar` — `[Authorize]`; items `{IdProducto, Cantidad}`; prices, totals, date and employee are set server-side.
 - `POST api/nota-pedido/faltante` — `[Authorize]`; creates a "Pendiente" order note for a missing product.
+
+- **UI conventions (Cliente)** — design tokens and `.ft-*` utility classes live in `wwwroot/css/app.css`; page styles go in scoped `.razor.css`; icons are inline SVGs via `Shared/Icono.razor` (no icon fonts or CDNs); `Pages/Login` uses `Layout/LayoutVacio` (no sidebar).
