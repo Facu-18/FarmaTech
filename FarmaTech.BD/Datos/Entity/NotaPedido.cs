@@ -17,17 +17,15 @@ namespace FarmaTech.BD.Datos.Entity
         [StringLength(30, ErrorMessage = "El estado no puede superar los 30 caracteres.")]
         public string Estado { get; set; } = string.Empty;
 
-        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un producto valido.")]
         [ForeignKey(nameof(Producto))]
-        public int IdProducto { get; set; }
+        public int? IdProducto { get; set; }
 
-        public Producto Producto { get; set; } = null!;
+        public Producto? Producto { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una drogueria valida.")]
         [ForeignKey(nameof(Drogueria))]
-        public int IdDrogueria { get; set; }
+        public int? IdDrogueria { get; set; }
 
-        public Drogueria Drogueria { get; set; } = null!;
+        public Drogueria? Drogueria { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una empleada valida.")]
         [ForeignKey(nameof(Empleada))]

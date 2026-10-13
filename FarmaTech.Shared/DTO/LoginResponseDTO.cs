@@ -6,5 +6,6 @@ namespace FarmaTech.Shared.DTO
         public DateTime Expira { get; set; }
         public int Id { get; set; }
         public string Rol { get; set; } = string.Empty;
+        public List<string> Roles { get; set; } = new();
     }
 }

@@ -1,0 +1,61 @@
+<EditForm Model="Modelo" OnValidSubmit="OnValidSubmit" class="pf-form">
+    <DataAnnotationsValidator />
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label for="codigo" class="form-label">Código</label>
+            <InputText id="codigo" class="form-control pf-mono" @bind-Value="Modelo.Codigo" />
+            <div class="form-text">Identificador único del producto.</div>
+            <ValidationMessage For="() => Modelo.Codigo" />
+        </div>
+        <div class="col-md-6">
+            <label for="categoria" class="form-label">Categoría</label>
+            <InputText id="categoria" class="form-control" @bind-Value="Modelo.Categoria" />
+            <div class="form-text">Por ejemplo: Analgésicos, Perfumería.</div>
+            <ValidationMessage For="() => Modelo.Categoria" />
+        </div>
+        <div class="col-12">
+            <label for="nombre" class="form-label">Nombre</label>
+            <InputText id="nombre" class="form-control" @bind-Value="Modelo.Nombre" />
+            <ValidationMessage For="() => Modelo.Nombre" />
+        </div>
+        <div class="col-12">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <InputTextArea id="descripcion" class="form-control" rows="3" @bind-Value="Modelo.Descripcion" />
+            <ValidationMessage For="() => Modelo.Descripcion" />
+        </div>
+        <div class="col-md-6">
+            <label for="precio" class="form-label">Precio</label>
+            <div class="input-group">
+                <span class="input-group-text" aria-hidden="true">$</span>
+                <InputNumber id="precio" class="form-control" step="0.01" @bind-Value="Modelo.Precio" />
+            </div>
+            <div class="form-text">Precio de venta al público.</div>
+            <ValidationMessage For="() => Modelo.Precio" />
+        </div>
+        <div class="col-md-6">
+            <label for="estado" class="form-label">Estado</label>
+            <InputSelect id="estado" class="form-select" @bind-Value="Modelo.Estado">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </InputSelect>
+            <div class="form-text">Los productos inactivos no aparecen en las ventas.</div>
+            <ValidationMessage For="() => Modelo.Estado" />
+        </div>
+    </div>
+
+    <div class="pf-acciones">
+        <button type="button" class="btn btn-outline-secondary" disabled="@Enviando" @onclick="OnCancelar">Cancelar</button>
+        <button type="submit" class="btn btn-primary" disabled="@Enviando">
+            @(Enviando ? "Guardando..." : TextoBoton)
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public ProductoDTO Modelo { get; set; } = new();
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancelar { get; set; }
+    [Parameter] public string TextoBoton { get; set; } = "Guardar";
+    [Parameter] public bool Enviando { get; set; }
+}

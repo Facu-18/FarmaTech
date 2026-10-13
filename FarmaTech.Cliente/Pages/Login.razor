@@ -1,0 +1,76 @@
+@page "/login"
+@layout LayoutVacio
+@inject SesionService Sesion
+@inject NavigationManager Navigation
+
+<PageTitle>Iniciar sesión</PageTitle>
+
+<div class="login-tarjeta ft-tarjeta">
+    <div class="login-marca">
+        <span class="ft-logo login-logo"><Icono Nombre="cruz" Tamano="28" /></span>
+        <p class="login-nombre">FarmaTech</p>
+        <p class="login-sub">Farmacia Ternavasio</p>
+    </div>
+
+    <h1 class="login-titulo">Iniciar sesión</h1>
+    <p class="login-descripcion">Ingrese su usuario y PIN para continuar.</p>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    <EditForm Model="modelo" OnValidSubmit="IniciarSesion">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <InputText id="usuario" class="form-control form-control-lg" @bind-Value="modelo.Usuario" autocomplete="username" />
+            <ValidationMessage For="() => modelo.Usuario" />
+        </div>
+
+        <div class="mb-4">
+            <label for="pin" class="form-label">PIN</label>
+            <InputText id="pin" type="password" inputmode="numeric" maxlength="6" class="form-control form-control-lg"
+                       @bind-Value="modelo.Pin" autocomplete="current-password" />
+            <ValidationMessage For="() => modelo.Pin" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100" disabled="@enviando">
+            @if (enviando)
+            {
+                <span class="ft-spinner login-spinner" aria-hidden="true"></span>
+            }
+            @(enviando ? "Ingresando..." : "Ingresar")
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private readonly LoginDTO modelo = new();
+    private string? error;
+    private bool enviando;
+
+    private async Task IniciarSesion()
+    {
+        if (enviando)
+        {
+            return;
+        }
+
+        enviando = true;
+        error = null;
+
+        var resp = await Sesion.LoginAsync(modelo);
+        enviando = false;
+
+        if (resp.Error)
+        {
+            error = resp.Mensaje;
+            modelo.Pin = string.Empty;
+            return;
+        }
+
+        Navigation.NavigateTo("");
+    }
+}

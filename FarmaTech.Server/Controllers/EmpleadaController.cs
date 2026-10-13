@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FarmaTech.Server.Controllers
 {
     [ApiController]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.Encargada)]
     [Route("api/empleada")]
     public class EmpleadaController : ControllerBase
     {

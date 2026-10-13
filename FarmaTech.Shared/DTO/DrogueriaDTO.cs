@@ -2,8 +2,8 @@ namespace FarmaTech.Shared.DTO
 {
     public class DrogueriaDTO
     {
-        public string Nombre { get; set; }
-        public string CanalContacto { get; set; }
-        public string Contacto { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string CanalContacto { get; set; } = string.Empty;
+        public string Contacto { get; set; } = string.Empty;
     }
 }

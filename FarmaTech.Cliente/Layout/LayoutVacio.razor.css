@@ -1,0 +1,11 @@
+.ft-fondo-vacio {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(45, 212, 191, .35), transparent 45%),
+        radial-gradient(circle at 90% 95%, rgba(15, 118, 110, .28), transparent 50%),
+        linear-gradient(160deg, #f0fdfa 0%, #ccfbf1 100%);
+}

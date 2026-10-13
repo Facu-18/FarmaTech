@@ -483,3 +483,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# CodeGraph local index
+.codegraph/
+
+# Playwright MCP artifacts
+.playwright-mcp/

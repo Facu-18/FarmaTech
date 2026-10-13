@@ -1,0 +1,441 @@
+@page "/ventas/nueva"
+@attribute [Authorize]
+@using System.Globalization
+@inject IHttpService Http
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<PageTitle>Registrar venta</PageTitle>
+
+<div class="ft-pagina">
+    <header class="ft-encabezado">
+        <div>
+            <h1>Registrar venta</h1>
+            <p class="ft-subtitulo">Busque los productos, agréguelos a la venta y confirme el cobro.</p>
+        </div>
+    </header>
+
+    @if (confirmacion is not null)
+    {
+        <section class="ft-tarjeta rv-confirmacion" aria-labelledby="rv-confirmacion-titulo">
+            <div class="rv-confirmacion-cabecera">
+                <span class="rv-check"><Icono Nombre="check" Tamano="32" /></span>
+                <h2 id="rv-confirmacion-titulo">Venta registrada</h2>
+                <p class="rv-confirmacion-meta">
+                    <span><strong>N.º de venta:</strong> @confirmacion.IdVenta</span>
+                    <span><strong>Fecha:</strong> @confirmacion.Fecha.ToLocalTime().ToString("g", Cultura)</span>
+                </p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Precio unitario</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in confirmacion.Detalles)
+                        {
+                            <tr>
+                                <td>@d.Codigo - @d.Nombre</td>
+                                <td class="ft-monto">@d.Cantidad</td>
+                                <td class="ft-monto">@Moneda(d.PrecioUnitario)</td>
+                                <td class="ft-monto">@Moneda(d.Subtotal)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="rv-confirmacion-pie">
+                <div class="rv-total-bloque">
+                    <span class="rv-total-etiqueta">Total cobrado</span>
+                    <span class="rv-total-monto ft-monto">@Moneda(confirmacion.Total)</span>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg" @onclick="NuevaVenta">
+                    <Icono Nombre="nuevo" /> Nueva venta
+                </button>
+            </div>
+        </section>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+        @if (!string.IsNullOrEmpty(aviso))
+        {
+            <div class="alert alert-success" role="alert">@aviso</div>
+        }
+
+        <div class="rv-grilla">
+            <section class="rv-busqueda" aria-label="Búsqueda de productos">
+                <form class="rv-buscador" @onsubmit="Buscar" @onsubmit:preventDefault role="search">
+                    <div class="rv-buscador-campo">
+                        <label for="buscar-venta" class="visually-hidden">Buscar producto por nombre o código</label>
+                        <span class="rv-buscador-icono"><Icono Nombre="buscar" Tamano="22" /></span>
+                        <input id="buscar-venta" @ref="buscador" class="form-control rv-input"
+                               placeholder="Buscar por nombre o código…" autocomplete="off" @bind="texto" />
+                    </div>
+                    <button type="submit" class="btn btn-primary rv-boton-buscar" disabled="@(buscando || enviando)">Buscar</button>
+                </form>
+
+                @if (buscando)
+                {
+                    <div class="ft-tarjeta ft-cargando" role="status">
+                        <span class="ft-spinner" aria-hidden="true"></span> Buscando...
+                    </div>
+                }
+                else if (resultados is not null && resultados.Count == 0)
+                {
+                    <div class="ft-tarjeta ft-vacio" role="alert">
+                        <span class="ft-vacio-icono"><Icono Nombre="buscar" Tamano="28" /></span>
+                        <p class="ft-vacio-titulo">Producto no encontrado.</p>
+                        <p>Avise a la encargada para darlo de alta.</p>
+                    </div>
+                }
+                else if (resultados is not null)
+                {
+                    <p class="rv-pista"><Icono Nombre="info" Tamano="16" /> Si el producto no está en la farmacia, agréguelo a la nota de pedido.</p>
+                    <ul class="rv-resultados">
+                        @foreach (var p in resultados)
+                        {
+                            var producto = p;
+                            <li class="rv-resultado ft-tarjeta">
+                                <div class="rv-resultado-info">
+                                    <span class="rv-resultado-nombre">@producto.Nombre</span>
+                                    <span class="rv-resultado-detalle">
+                                        <span class="rv-codigo">@producto.Codigo</span>
+                                        @if (!string.IsNullOrWhiteSpace(producto.Descripcion))
+                                        {
+                                            <span class="rv-desc">@producto.Descripcion</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="rv-resultado-precio ft-monto" aria-label="Precio vigente">@Moneda(producto.Precio)</div>
+                                <div class="rv-resultado-acciones">
+                                    @if (faltanteAbierto == producto.Id)
+                                    {
+                                        <div class="rv-faltante">
+                                            <label for="faltante-@producto.Id" class="rv-faltante-titulo">Cantidad a pedir</label>
+                                            <div class="input-group">
+                                                <input id="faltante-@producto.Id" type="number" min="1" class="form-control"
+                                                       aria-label="Cantidad a pedir" @bind="cantidadFaltante" />
+                                                <button type="button" class="btn btn-warning" disabled="@(enviando || enviandoFaltante)"
+                                                        @onclick="() => EnviarFaltante(producto)">Confirmar</button>
+                                                <button type="button" class="btn btn-outline-secondary" disabled="@enviandoFaltante"
+                                                        @onclick="CerrarFaltante">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="input-group rv-agregar">
+                                            <input type="number" min="1" class="form-control rv-cantidad" aria-label="Cantidad"
+                                                   @bind="cantidades[producto.Id]" />
+                                            <button type="button" class="btn btn-primary" disabled="@enviando"
+                                                    @onclick="() => Agregar(producto)"><Icono Nombre="nuevo" Tamano="18" /> Agregar</button>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-warning rv-nota" disabled="@enviando"
+                                                @onclick="() => AbrirFaltante(producto)"><Icono Nombre="nota" Tamano="16" /> Agregar a nota de pedido</button>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="ft-tarjeta ft-vacio">
+                        <span class="ft-vacio-icono"><Icono Nombre="buscar" Tamano="28" /></span>
+                        <p class="ft-vacio-titulo">Busque un producto para empezar</p>
+                        <p>Escriba el nombre o el código y presione Buscar.</p>
+                    </div>
+                }
+            </section>
+
+            <aside class="rv-ticket ft-tarjeta" aria-labelledby="rv-ticket-titulo">
+                <div class="rv-ticket-cabecera">
+                    <h2 id="rv-ticket-titulo">Venta actual</h2>
+                    <span class="ft-chip">@carrito.Count @(carrito.Count == 1 ? "producto" : "productos")</span>
+                </div>
+
+                @if (carrito.Count == 0)
+                {
+                    <div class="ft-vacio rv-ticket-vacio">
+                        <span class="ft-vacio-icono"><Icono Nombre="venta" Tamano="28" /></span>
+                        <p>Aún no hay productos en la venta.</p>
+                    </div>
+                }
+                else
+                {
+                    <ul class="rv-lineas">
+                        @foreach (var l in carrito)
+                        {
+                            var linea = l;
+                            <li class="rv-linea">
+                                <div class="rv-linea-info">
+                                    <span class="rv-linea-nombre">@linea.Nombre</span>
+                                    <span class="rv-linea-detalle">@linea.Codigo · @Moneda(linea.PrecioUnitario) c/u</span>
+                                </div>
+                                <div class="rv-linea-cantidad">
+                                    <label for="cant-@linea.IdProducto" class="visually-hidden">Cantidad de @linea.Nombre</label>
+                                    <input id="cant-@linea.IdProducto" type="number" min="1" class="form-control form-control-sm"
+                                           value="@linea.Cantidad" disabled="@enviando"
+                                           @onchange="e => CambiarCantidad(linea, e)" />
+                                </div>
+                                <div class="rv-linea-subtotal ft-monto">@Moneda(linea.Subtotal)</div>
+                                <button type="button" class="btn btn-sm btn-outline-danger rv-quitar" disabled="@enviando"
+                                        aria-label="Quitar @linea.Nombre de la venta" title="Quitar"
+                                        @onclick="() => Quitar(linea)"><Icono Nombre="cerrar" Tamano="16" /></button>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                <div class="rv-total">
+                    <span class="rv-total-etiqueta">Total estimado</span>
+                    <span class="rv-total-monto ft-monto">@Moneda(TotalEstimado)</span>
+                </div>
+
+                <div class="rv-ticket-acciones">
+                    <button type="button" class="btn btn-primary btn-lg w-100" disabled="@(carrito.Count == 0 || enviando)" @onclick="Confirmar">
+                        @if (enviando)
+                        {
+                            <span class="ft-spinner rv-spinner" aria-hidden="true"></span>
+                        }
+                        else
+                        {
+                            <Icono Nombre="check" />
+                        }
+                        @(enviando ? "Registrando..." : "Confirmar venta")
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary w-100" disabled="@enviando" @onclick="Cancelar">Cancelar</button>
+                </div>
+            </aside>
+        </div>
+    }
+</div>
+
+@code {
+
+    private sealed class LineaCarrito
+    {
+        public int IdProducto { get; init; }
+        public string Codigo { get; init; } = string.Empty;
+        public string Nombre { get; init; } = string.Empty;
+        public decimal PrecioUnitario { get; set; }
+        public int Cantidad { get; set; }
+        public decimal Subtotal => PrecioUnitario * Cantidad;
+    }
+
+    private readonly List<LineaCarrito> carrito = new();
+    private readonly Dictionary<int, int> cantidades = new();
+
+    private List<ProductoResponseDTO>? resultados;
+    private VentaRegistradaDTO? confirmacion;
+    private string texto = string.Empty;
+    private string? error;
+    private string? aviso;
+    private bool buscando;
+    private bool enviando;
+    private bool enviandoFaltante;
+    private int? faltanteAbierto;
+    private int cantidadFaltante = 1;
+
+    // Presentational: keep the search box focused so the counter can scan/type right away
+    private ElementReference buscador;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await buscador.FocusAsync();
+        }
+    }
+
+    private decimal TotalEstimado => carrito.Sum(l => l.Subtotal);
+
+    private static readonly CultureInfo Cultura = new("es-AR");
+
+    private static string Moneda(decimal valor) => Formato.Moneda(valor);
+
+    private async Task Buscar()
+    {
+        var termino = texto.Trim();
+        error = null;
+        aviso = null;
+        faltanteAbierto = null;
+
+        if (termino.Length == 0)
+        {
+            error = "Ingrese un nombre o código para buscar.";
+            return;
+        }
+
+        buscando = true;
+        var resp = await Http.GetAsync<List<ProductoResponseDTO>>(
+            $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}&incluirInactivos=false");
+        buscando = false;
+
+        if (resp.Error)
+        {
+            resultados = null;
+            error = resp.Mensaje;
+            return;
+        }
+
+        resultados = resp.Respuesta ?? new();
+        foreach (var p in resultados)
+        {
+            cantidades[p.Id] = 1;
+        }
+    }
+
+    private void Agregar(ProductoResponseDTO producto)
+    {
+        error = null;
+        aviso = null;
+
+        var cantidad = cantidades.GetValueOrDefault(producto.Id, 1);
+        if (cantidad < 1)
+        {
+            error = "La cantidad debe ser mayor que cero.";
+            return;
+        }
+
+        var existente = carrito.FirstOrDefault(l => l.IdProducto == producto.Id);
+        if (existente is null)
+        {
+            carrito.Add(new LineaCarrito
+            {
+                IdProducto = producto.Id,
+                Codigo = producto.Codigo,
+                Nombre = producto.Nombre,
+                PrecioUnitario = producto.Precio,
+                Cantidad = cantidad
+            });
+        }
+        else
+        {
+            existente.Cantidad += cantidad;
+            existente.PrecioUnitario = producto.Precio;
+        }
+
+        cantidades[producto.Id] = 1;
+    }
+
+    private void CambiarCantidad(LineaCarrito linea, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var cantidad) && cantidad >= 1)
+        {
+            linea.Cantidad = cantidad;
+        }
+    }
+
+    private void Quitar(LineaCarrito linea) => carrito.Remove(linea);
+
+    private void AbrirFaltante(ProductoResponseDTO producto)
+    {
+        error = null;
+        aviso = null;
+        cantidadFaltante = 1;
+        faltanteAbierto = producto.Id;
+    }
+
+    private void CerrarFaltante() => faltanteAbierto = null;
+
+    private async Task EnviarFaltante(ProductoResponseDTO producto)
+    {
+        if (enviandoFaltante)
+        {
+            return;
+        }
+
+        error = null;
+        aviso = null;
+
+        if (cantidadFaltante < 1)
+        {
+            error = "La cantidad debe ser mayor que cero.";
+            return;
+        }
+
+        enviandoFaltante = true;
+        var dto = new FaltanteDTO { IdProducto = producto.Id, Cantidad = cantidadFaltante };
+        var resp = await Http.PostAsync<FaltanteDTO, int>("api/nota-pedido/faltante", dto);
+        enviandoFaltante = false;
+
+        if (resp.Error)
+        {
+            error = resp.Mensaje;
+            return;
+        }
+
+        aviso = $"\"{producto.Nombre}\" se agregó a la nota de pedido (cantidad: {dto.Cantidad}).";
+        faltanteAbierto = null;
+    }
+
+    private async Task Confirmar()
+    {
+        if (enviando || carrito.Count == 0)
+        {
+            return;
+        }
+
+        error = null;
+        aviso = null;
+        enviando = true;
+
+        var dto = new RegistrarVentaDTO
+        {
+            Items = carrito.Select(l => new ItemVentaDTO { IdProducto = l.IdProducto, Cantidad = l.Cantidad }).ToList()
+        };
+        var resp = await Http.PostAsync<RegistrarVentaDTO, VentaRegistradaDTO>("api/venta/registrar", dto);
+        enviando = false;
+
+        if (resp.Error || resp.Respuesta is null)
+        {
+            error = resp.Mensaje;
+            return;
+        }
+
+        confirmacion = resp.Respuesta;
+        LimpiarVenta();
+    }
+
+    private async Task Cancelar()
+    {
+        var hayDatos = carrito.Count > 0 || resultados is not null || texto.Length > 0;
+        if (hayDatos &&
+            !await JS.InvokeAsync<bool>("confirm", "¿Desea cancelar la operación? Se descartarán los datos ingresados."))
+        {
+            return;
+        }
+
+        LimpiarVenta();
+        Navigation.NavigateTo("");
+    }
+
+    private void NuevaVenta()
+    {
+        confirmacion = null;
+        LimpiarVenta();
+    }
+
+    private void LimpiarVenta()
+    {
+        carrito.Clear();
+        cantidades.Clear();
+        resultados = null;
+        texto = string.Empty;
+        error = null;
+        aviso = null;
+        faltanteAbierto = null;
+    }
+}

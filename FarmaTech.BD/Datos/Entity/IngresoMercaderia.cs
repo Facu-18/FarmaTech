@@ -19,11 +19,10 @@ namespace FarmaTech.BD.Datos.Entity
 
         public Producto Producto { get; set; } = null!;
 
-        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una drogueria valida.")]
         [ForeignKey(nameof(Drogueria))]
-        public int IdDrogueria { get; set; }
+        public int? IdDrogueria { get; set; }
 
-        public Drogueria Drogueria { get; set; } = null!;
+        public Drogueria? Drogueria { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar una empleada valida.")]
         [ForeignKey(nameof(Empleada))]

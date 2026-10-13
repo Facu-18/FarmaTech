@@ -88,8 +88,10 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmpleadaRepositorio, EmpleadaRepositorio>();
+builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 builder.Services.AddScoped<IRepositorio<Producto>, Repositorio<Producto>>();
 builder.Services.AddScoped<IRepositorio<Drogueria>, Repositorio<Drogueria>>();
+builder.Services.AddScoped<IVentaRepositorio, VentaRepositorio>();
 builder.Services.AddScoped<IRepositorio<Venta>, Repositorio<Venta>>();
 builder.Services.AddScoped<IRepositorio<DetalleVenta>, Repositorio<DetalleVenta>>();
 builder.Services.AddScoped<IRepositorio<IngresoMercaderia>, Repositorio<IngresoMercaderia>>();
@@ -104,7 +106,17 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // Stylesheets are not fingerprinted: force revalidation so browsers never keep a stale copy.
+    OnPrepareResponse = context =>
+    {
+        if (context.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Context.Response.Headers.CacheControl = "no-cache";
+        }
+    }
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

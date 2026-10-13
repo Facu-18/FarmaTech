@@ -1,0 +1,60 @@
+.lp-barra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    padding: .85rem;
+    margin-bottom: 1rem;
+}
+
+.lp-buscador {
+    position: relative;
+    flex: 1 1 18rem;
+}
+
+.lp-buscador-icono {
+    position: absolute;
+    top: 50%;
+    left: .85rem;
+    transform: translateY(-50%);
+    color: var(--ft-muted);
+    pointer-events: none;
+    display: inline-flex;
+}
+
+.lp-input {
+    padding-left: 2.6rem;
+    min-height: 2.75rem;
+}
+
+.lp-barra-botones {
+    display: flex;
+    gap: .5rem;
+}
+
+.lp-tabla {
+    overflow: hidden;
+}
+
+.lp-codigo {
+    font-family: var(--ft-fuente-mono);
+    font-size: .85rem;
+    color: var(--ft-muted);
+    white-space: nowrap;
+}
+
+.lp-nombre {
+    font-weight: 600;
+}
+
+.lp-desc {
+    max-width: 26rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--ft-muted);
+    font-size: .85rem;
+}
+
+.lp-tabla ::deep .btn + .btn {
+    margin-left: .35rem;
+}

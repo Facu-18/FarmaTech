@@ -48,7 +48,8 @@ namespace FarmaTech.Server.Autenticacion
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Expira = expiration,
                 Id = empleada.Id,
-                Rol = roles.FirstOrDefault() ?? string.Empty
+                Rol = roles.Contains(Roles.Encargada) ? Roles.Encargada : roles.FirstOrDefault() ?? string.Empty,
+                Roles = roles.ToList()
             };
         }
     }
