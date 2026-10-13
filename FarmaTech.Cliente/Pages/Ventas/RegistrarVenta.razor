@@ -78,6 +78,7 @@ else
     }
     else if (resultados is not null)
     {
+        <p class="text-muted small mb-2">Si el producto no está en la farmacia, agréguelo a la nota de pedido.</p>
         <div class="table-responsive mb-4">
             <table class="table table-hover align-middle">
                 <thead>
@@ -86,7 +87,6 @@ else
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th class="text-end">Precio vigente</th>
-                        <th>Estado</th>
                         <th style="min-width: 15rem;"></th>
                     </tr>
                 </thead>
@@ -100,19 +100,7 @@ else
                             <td>@producto.Descripcion</td>
                             <td class="text-end">@Moneda(producto.Precio)</td>
                             <td>
-                                <span class="badge @(EstaDisponible(producto) ? "text-bg-success" : "text-bg-secondary")">@producto.Estado</span>
-                            </td>
-                            <td>
-                                @if (EstaDisponible(producto))
-                                {
-                                    <div class="input-group input-group-sm">
-                                        <input type="number" min="1" class="form-control" aria-label="Cantidad"
-                                               @bind="cantidades[producto.Id]" />
-                                        <button type="button" class="btn btn-outline-primary" disabled="@enviando"
-                                                @onclick="() => Agregar(producto)">Agregar</button>
-                                    </div>
-                                }
-                                else if (faltanteAbierto == producto.Id)
+                                @if (faltanteAbierto == producto.Id)
                                 {
                                     <div class="input-group input-group-sm">
                                         <input type="number" min="1" class="form-control" aria-label="Cantidad a pedir"
@@ -125,8 +113,16 @@ else
                                 }
                                 else
                                 {
-                                    <button type="button" class="btn btn-sm btn-outline-warning" disabled="@enviando"
-                                            @onclick="() => AbrirFaltante(producto)">Agregar a nota de pedido</button>
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" min="1" class="form-control" aria-label="Cantidad"
+                                                   @bind="cantidades[producto.Id]" />
+                                            <button type="button" class="btn btn-primary" disabled="@enviando"
+                                                    @onclick="() => Agregar(producto)">Agregar</button>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled="@enviando"
+                                                @onclick="() => AbrirFaltante(producto)">Agregar a nota de pedido</button>
+                                    </div>
                                 }
                             </td>
                         </tr>
@@ -223,8 +219,6 @@ else
 
     private decimal TotalEstimado => carrito.Sum(l => l.Subtotal);
 
-    private static bool EstaDisponible(ProductoResponseDTO p) => p.Estado == "Disponible";
-
     private static string Moneda(decimal valor) => valor.ToString("C", Cultura);
 
     private async Task Buscar()
@@ -242,7 +236,7 @@ else
 
         buscando = true;
         var resp = await Http.GetAsync<List<ProductoResponseDTO>>(
-            $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}");
+            $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}&incluirInactivos=false");
         buscando = false;
 
         if (resp.Error)

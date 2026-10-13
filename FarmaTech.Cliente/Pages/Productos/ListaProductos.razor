@@ -95,7 +95,7 @@ else if (productos.Count > 0)
         var termino = texto.Trim();
         var url = termino.Length == 0
             ? "api/producto"
-            : $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}";
+            : $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}&incluirInactivos=true";
 
         var resp = await Http.GetAsync<List<ProductoResponseDTO>>(url);
         if (resp.Error)

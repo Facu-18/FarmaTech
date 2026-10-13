@@ -16,11 +16,13 @@ namespace FarmaTech.Repository.Repositorios
             return await context.Set<Producto>().FirstOrDefaultAsync(p => p.Codigo == valor);
         }
 
-        public async Task<List<Producto>> Buscar(string texto)
+        public async Task<List<Producto>> Buscar(string texto, bool incluirInactivos = false)
         {
             string valor = texto.Trim();
+            // Any estado other than "Inactivo" counts as active (legacy rows)
             return await context.Set<Producto>()
                 .Where(p => p.Nombre.Contains(valor) || p.Codigo.Contains(valor))
+                .Where(p => incluirInactivos || p.Estado != "Inactivo")
                 .OrderBy(p => p.Nombre)
                 .Take(50)
                 .ToListAsync();

@@ -57,14 +57,14 @@ namespace FarmaTech.Server.Controllers
         }
 
         [HttpGet("buscar")]
-        public async Task<ActionResult<List<ProductoResponseDTO>>> Buscar([FromQuery] string? texto)
+        public async Task<ActionResult<List<ProductoResponseDTO>>> Buscar([FromQuery] string? texto, [FromQuery] bool incluirInactivos = false)
         {
             if (string.IsNullOrWhiteSpace(texto))
             {
                 return BadRequest("Debe ingresar un texto de busqueda.");
             }
 
-            var productos = await repositorio.Buscar(texto);
+            var productos = await repositorio.Buscar(texto, incluirInactivos);
             return Ok(productos.Select(ToResponse).ToList());
         }
 
