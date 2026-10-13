@@ -1,0 +1,113 @@
+@page "/productos"
+@attribute [Authorize]
+@using System.Globalization
+@inject IHttpService Http
+
+<PageTitle>Productos</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Productos</h1>
+    <AuthorizeView Roles="Encargada">
+        <a class="btn btn-primary" href="productos/nuevo">Nuevo producto</a>
+    </AuthorizeView>
+</div>
+
+<form class="row g-2 mb-3" @onsubmit="Buscar" @onsubmit:preventDefault>
+    <div class="col">
+        <input class="form-control" placeholder="Buscar por nombre o código" @bind="texto" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary" disabled="@cargando">Buscar</button>
+        <button type="button" class="btn btn-outline-secondary" @onclick="Limpiar" disabled="@cargando">Ver todos</button>
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (cargando)
+{
+    <p>Cargando...</p>
+}
+else if (productos.Count == 0 && string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-info" role="alert">No se encontraron productos.</div>
+}
+else if (productos.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th class="text-end">Precio</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in productos)
+                {
+                    <tr>
+                        <td>@p.Codigo</td>
+                        <td>@p.Nombre</td>
+                        <td>@p.Categoria</td>
+                        <td class="text-end">@p.Precio.ToString("C", Cultura)</td>
+                        <td>
+                            <span class="badge @(p.Estado == "Disponible" ? "text-bg-success" : "text-bg-secondary")">@p.Estado</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private static readonly CultureInfo Cultura = new("es-AR");
+
+    private List<ProductoResponseDTO> productos = new();
+    private string texto = string.Empty;
+    private string? error;
+    private bool cargando;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    private Task Buscar() => Cargar();
+
+    private async Task Limpiar()
+    {
+        texto = string.Empty;
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        cargando = true;
+        error = null;
+
+        var termino = texto.Trim();
+        var url = termino.Length == 0
+            ? "api/producto"
+            : $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}";
+
+        var resp = await Http.GetAsync<List<ProductoResponseDTO>>(url);
+        if (resp.Error)
+        {
+            productos = new();
+            error = resp.Mensaje;
+        }
+        else
+        {
+            productos = resp.Respuesta ?? new();
+        }
+
+        cargando = false;
+    }
+}
