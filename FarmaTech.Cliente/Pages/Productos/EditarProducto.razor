@@ -1,0 +1,104 @@
+@page "/productos/editar/{Id:int}"
+@attribute [Authorize(Roles = "Encargada")]
+@inject IHttpService Http
+@inject NavigationManager Navigation
+
+<PageTitle>Editar producto</PageTitle>
+
+<h1 class="h3 mb-3">Editar producto</h1>
+
+@if (cargando)
+{
+    <p>Cargando...</p>
+}
+else if (noEncontrado)
+{
+    <div class="alert alert-warning" role="alert">
+        Producto no encontrado.
+        <div class="mt-2"><a class="btn btn-outline-primary btn-sm" href="productos">Volver al listado</a></div>
+    </div>
+}
+else if (modelo is not null)
+{
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    <ProductoFormulario Modelo="modelo" TextoBoton="Guardar cambios" Enviando="enviando"
+                        OnValidSubmit="Guardar" OnCancelar="Cancelar" />
+}
+else if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private ProductoDTO? modelo;
+    private string? error;
+    private bool cargando = true;
+    private bool noEncontrado;
+    private bool enviando;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        noEncontrado = false;
+        error = null;
+        modelo = null;
+
+        var resp = await Http.GetAsync<ProductoResponseDTO>($"api/producto/{Id}");
+        cargando = false;
+
+        if (resp.Error || resp.Respuesta is null)
+        {
+            if (resp.Response?.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                noEncontrado = true;
+            }
+            else
+            {
+                error = resp.Mensaje;
+            }
+            return;
+        }
+
+        var p = resp.Respuesta;
+        modelo = new ProductoDTO
+        {
+            Codigo = p.Codigo,
+            Nombre = p.Nombre,
+            Descripcion = p.Descripcion,
+            Categoria = p.Categoria,
+            Precio = p.Precio,
+            // Legacy values other than "Inactivo" count as active
+            Estado = p.Estado == "Inactivo" ? "Inactivo" : "Activo"
+        };
+    }
+
+    private async Task Guardar()
+    {
+        if (enviando || modelo is null)
+        {
+            return;
+        }
+
+        enviando = true;
+        error = null;
+
+        var resp = await Http.PutAsync<ProductoDTO, bool>($"api/producto/{Id}", modelo);
+        enviando = false;
+
+        if (resp.Error)
+        {
+            error = resp.Mensaje;
+            return;
+        }
+
+        Navigation.NavigateTo("productos?mensaje=" + Uri.EscapeDataString("Producto actualizado correctamente."));
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("productos");
+}

@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @using System.Globalization
 @inject IHttpService Http
+@inject IJSRuntime JS
 
 <PageTitle>Productos</PageTitle>
 
@@ -22,6 +23,10 @@
     </div>
 </form>
 
+@if (!string.IsNullOrEmpty(aviso))
+{
+    <div class="alert alert-success" role="alert">@aviso</div>
+}
 @if (!string.IsNullOrEmpty(error))
 {
     <div class="alert alert-danger" role="alert">@error</div>
@@ -46,19 +51,39 @@ else if (productos.Count > 0)
                     <th>Categoría</th>
                     <th class="text-end">Precio</th>
                     <th>Estado</th>
+                    <AuthorizeView Roles="Encargada">
+                        <th class="text-end">Acciones</th>
+                    </AuthorizeView>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var p in productos)
                 {
+                    var producto = p;
                     <tr>
-                        <td>@p.Codigo</td>
-                        <td>@p.Nombre</td>
-                        <td>@p.Categoria</td>
-                        <td class="text-end">@p.Precio.ToString("C", Cultura)</td>
+                        <td>@producto.Codigo</td>
+                        <td>@producto.Nombre</td>
+                        <td>@producto.Categoria</td>
+                        <td class="text-end">@producto.Precio.ToString("C", Cultura)</td>
                         <td>
-                            <span class="badge @(p.Estado == "Disponible" ? "text-bg-success" : "text-bg-secondary")">@p.Estado</span>
+                            <span class="badge @(EstaActivo(producto) ? "text-bg-success" : "text-bg-secondary")">@(EstaActivo(producto) ? "Activo" : "Inactivo")</span>
                         </td>
+                        <AuthorizeView Roles="Encargada">
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-sm btn-outline-primary @(procesando ? "disabled" : null)"
+                                   href="productos/editar/@producto.Id">Editar</a>
+                                @if (EstaActivo(producto))
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger" disabled="@procesando"
+                                            @onclick="() => DarDeBaja(producto)">Dar de baja</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-success" disabled="@procesando"
+                                            @onclick="() => Reactivar(producto)">Reactivar</button>
+                                }
+                            </td>
+                        </AuthorizeView>
                     </tr>
                 }
             </tbody>
@@ -69,13 +94,21 @@ else if (productos.Count > 0)
 @code {
     private static readonly CultureInfo Cultura = new("es-AR");
 
+    [SupplyParameterFromQuery(Name = "mensaje")] public string? Mensaje { get; set; }
+
     private List<ProductoResponseDTO> productos = new();
     private string texto = string.Empty;
     private string? error;
+    private string? aviso;
     private bool cargando;
+    private bool procesando;
+
+    // Any estado other than "Inactivo" counts as active (legacy rows)
+    private static bool EstaActivo(ProductoResponseDTO p) => p.Estado != "Inactivo";
 
     protected override async Task OnInitializedAsync()
     {
+        aviso = Mensaje;
         await Cargar();
     }
 
@@ -109,5 +142,70 @@ else if (productos.Count > 0)
         }
 
         cargando = false;
+    }
+
+    private async Task DarDeBaja(ProductoResponseDTO producto)
+    {
+        if (procesando)
+        {
+            return;
+        }
+
+        error = null;
+        aviso = null;
+
+        if (!await JS.InvokeAsync<bool>("confirm",
+                $"¿Desea dar de baja el producto \"{producto.Nombre}\"? Dejará de aparecer en las ventas."))
+        {
+            return;
+        }
+
+        procesando = true;
+        var resp = await Http.DeleteAsync<bool>($"api/producto/{producto.Id}");
+
+        if (resp.Error)
+        {
+            procesando = false;
+            error = resp.Mensaje;
+            return;
+        }
+
+        aviso = $"El producto \"{producto.Nombre}\" se dio de baja.";
+        await Cargar();
+        procesando = false;
+    }
+
+    private async Task Reactivar(ProductoResponseDTO producto)
+    {
+        if (procesando)
+        {
+            return;
+        }
+
+        error = null;
+        aviso = null;
+        procesando = true;
+
+        var dto = new ProductoDTO
+        {
+            Codigo = producto.Codigo,
+            Nombre = producto.Nombre,
+            Descripcion = producto.Descripcion,
+            Categoria = producto.Categoria,
+            Precio = producto.Precio,
+            Estado = "Activo"
+        };
+        var resp = await Http.PutAsync<ProductoDTO, bool>($"api/producto/{producto.Id}", dto);
+
+        if (resp.Error)
+        {
+            procesando = false;
+            error = resp.Mensaje;
+            return;
+        }
+
+        aviso = $"El producto \"{producto.Nombre}\" se reactivó.";
+        await Cargar();
+        procesando = false;
     }
 }

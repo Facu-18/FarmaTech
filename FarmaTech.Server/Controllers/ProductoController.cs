@@ -26,22 +26,15 @@ namespace FarmaTech.Server.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<ProductoDTO>> GetById(int id) {
+        public async Task<ActionResult<ProductoResponseDTO>> GetById(int id) {
             if (!await repositorio.Existe(id))
             {
                 return NotFound($"No se encontro el producto de id: {id}");
             }
 
             var producto = await repositorio.SelectById(id);
-            ProductoDTO dto = new ProductoDTO();
-            dto.Codigo = producto!.Codigo;
-            dto.Nombre = producto.Nombre;
-            dto.Descripcion = producto.Descripcion;
-            dto.Categoria = producto.Categoria;
-            dto.Precio = producto.Precio;
-            dto.Estado = producto.Estado;
 
-            return Ok(dto);
+            return Ok(ToResponse(producto!));
         }
 
         [HttpGet("codigo/{codigo}")]
@@ -139,7 +132,10 @@ namespace FarmaTech.Server.Controllers
                 return NotFound($"No existe el registro con id: {id}");
             }
 
-            await repositorio.Delete(id);
+            // Logical delete: keep the row so sale history (detalle_venta) stays intact
+            var producto = await repositorio.SelectById(id);
+            producto!.Estado = "Inactivo";
+            await repositorio.Update(producto);
 
             return Ok(true);
         }

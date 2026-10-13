@@ -1,0 +1,54 @@
+<EditForm Model="Modelo" OnValidSubmit="OnValidSubmit" class="col-12 col-lg-8">
+    <DataAnnotationsValidator />
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label for="codigo" class="form-label">Código</label>
+            <InputText id="codigo" class="form-control" @bind-Value="Modelo.Codigo" />
+            <ValidationMessage For="() => Modelo.Codigo" />
+        </div>
+        <div class="col-md-8">
+            <label for="nombre" class="form-label">Nombre</label>
+            <InputText id="nombre" class="form-control" @bind-Value="Modelo.Nombre" />
+            <ValidationMessage For="() => Modelo.Nombre" />
+        </div>
+        <div class="col-12">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <InputTextArea id="descripcion" class="form-control" rows="3" @bind-Value="Modelo.Descripcion" />
+            <ValidationMessage For="() => Modelo.Descripcion" />
+        </div>
+        <div class="col-md-4">
+            <label for="categoria" class="form-label">Categoría</label>
+            <InputText id="categoria" class="form-control" @bind-Value="Modelo.Categoria" />
+            <ValidationMessage For="() => Modelo.Categoria" />
+        </div>
+        <div class="col-md-4">
+            <label for="precio" class="form-label">Precio</label>
+            <InputNumber id="precio" class="form-control" step="0.01" @bind-Value="Modelo.Precio" />
+            <ValidationMessage For="() => Modelo.Precio" />
+        </div>
+        <div class="col-md-4">
+            <label for="estado" class="form-label">Estado</label>
+            <InputSelect id="estado" class="form-select" @bind-Value="Modelo.Estado">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+            </InputSelect>
+            <ValidationMessage For="() => Modelo.Estado" />
+        </div>
+    </div>
+
+    <div class="mt-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary" disabled="@Enviando">
+            @(Enviando ? "Guardando..." : TextoBoton)
+        </button>
+        <button type="button" class="btn btn-outline-secondary" disabled="@Enviando" @onclick="OnCancelar">Cancelar</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public ProductoDTO Modelo { get; set; } = new();
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancelar { get; set; }
+    [Parameter] public string TextoBoton { get; set; } = "Guardar";
+    [Parameter] public bool Enviando { get; set; }
+}

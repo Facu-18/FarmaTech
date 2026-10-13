@@ -25,7 +25,7 @@ namespace FarmaTech.Shared.DTO
         public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "El estado es obligatorio.")]
-        [StringLength(30, ErrorMessage = "El estado no puede superar los 30 caracteres.")]
+        [RegularExpression(@"^(Activo|Inactivo)$", ErrorMessage = "El estado debe ser Activo o Inactivo.")]
         public string Estado { get; set; } = string.Empty;
     }
 }
