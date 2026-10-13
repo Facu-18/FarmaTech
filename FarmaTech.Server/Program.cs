@@ -106,7 +106,17 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // Stylesheets are not fingerprinted: force revalidation so browsers never keep a stale copy.
+    OnPrepareResponse = context =>
+    {
+        if (context.File.Name.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Context.Response.Headers.CacheControl = "no-cache";
+        }
+    }
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

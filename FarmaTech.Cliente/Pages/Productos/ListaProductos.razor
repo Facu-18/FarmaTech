@@ -1,6 +1,5 @@
 @page "/productos"
 @attribute [Authorize]
-@using System.Globalization
 @inject IHttpService Http
 @inject IJSRuntime JS
 
@@ -97,7 +96,7 @@
                                         <span class="ft-chip">@producto.Categoria</span>
                                     }
                                 </td>
-                                <td class="ft-monto">@producto.Precio.ToString("C", Cultura)</td>
+                                <td class="ft-monto">@Formato.Moneda(producto.Precio)</td>
                                 <td>
                                     <span class="@(EstaActivo(producto) ? "ft-estado-activo" : "ft-estado-inactivo")">@(EstaActivo(producto) ? "Activo" : "Inactivo")</span>
                                 </td>
@@ -127,7 +126,6 @@
 </div>
 
 @code {
-    private static readonly CultureInfo Cultura = new("es-AR");
 
     [SupplyParameterFromQuery(Name = "mensaje")] public string? Mensaje { get; set; }
 

@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 
 # CodeGraph local index
 .codegraph/
+
+# Playwright MCP artifacts
+.playwright-mcp/

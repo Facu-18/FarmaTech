@@ -223,7 +223,6 @@
 </div>
 
 @code {
-    private static readonly CultureInfo Cultura = new("es-AR");
 
     private sealed class LineaCarrito
     {
@@ -262,7 +261,9 @@
 
     private decimal TotalEstimado => carrito.Sum(l => l.Subtotal);
 
-    private static string Moneda(decimal valor) => valor.ToString("C", Cultura);
+    private static readonly CultureInfo Cultura = new("es-AR");
+
+    private static string Moneda(decimal valor) => Formato.Moneda(valor);
 
     private async Task Buscar()
     {
