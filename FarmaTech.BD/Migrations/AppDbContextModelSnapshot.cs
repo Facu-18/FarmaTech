@@ -176,7 +176,7 @@ namespace FarmaTech.BD.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdDrogueria")
+                    b.Property<int?>("IdDrogueria")
                         .HasColumnType("int");
 
                     b.Property<int>("IdEmpleada")
@@ -215,13 +215,13 @@ namespace FarmaTech.BD.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdDrogueria")
+                    b.Property<int?>("IdDrogueria")
                         .HasColumnType("int");
 
                     b.Property<int>("IdEmpleada")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdProducto")
+                    b.Property<int?>("IdProducto")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -273,6 +273,9 @@ namespace FarmaTech.BD.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique();
 
                     b.ToTable("Productos");
                 });
@@ -444,7 +447,7 @@ namespace FarmaTech.BD.Migrations
                         .IsRequired();
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Venta", "Venta")
-                        .WithMany()
+                        .WithMany("Detalles")
                         .HasForeignKey("IdVenta")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -458,9 +461,7 @@ namespace FarmaTech.BD.Migrations
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Drogueria", "Drogueria")
                         .WithMany()
-                        .HasForeignKey("IdDrogueria")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdDrogueria");
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
                         .WithMany()
@@ -485,9 +486,7 @@ namespace FarmaTech.BD.Migrations
                 {
                     b.HasOne("FarmaTech.BD.Datos.Entity.Drogueria", "Drogueria")
                         .WithMany()
-                        .HasForeignKey("IdDrogueria")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdDrogueria");
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Empleada", "Empleada")
                         .WithMany()
@@ -497,9 +496,7 @@ namespace FarmaTech.BD.Migrations
 
                     b.HasOne("FarmaTech.BD.Datos.Entity.Producto", "Producto")
                         .WithMany()
-                        .HasForeignKey("IdProducto")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdProducto");
 
                     b.Navigation("Drogueria");
 
@@ -568,6 +565,11 @@ namespace FarmaTech.BD.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FarmaTech.BD.Datos.Entity.Venta", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

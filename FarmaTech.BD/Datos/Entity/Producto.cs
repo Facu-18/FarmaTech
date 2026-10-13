@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FarmaTech.BD.Datos.Entity
 {
+    [Index(nameof(Codigo), IsUnique = true)]
     public class Producto : EntityBase
     {
         [Required(ErrorMessage = "El codigo es obligatorio.")]

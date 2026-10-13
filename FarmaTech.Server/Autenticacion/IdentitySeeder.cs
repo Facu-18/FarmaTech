@@ -12,7 +12,7 @@ namespace FarmaTech.Server.Autenticacion
             using IServiceScope scope = services.CreateScope();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-            foreach (string role in new[] { Roles.Administrador, Roles.Empleada })
+            foreach (string role in new[] { Roles.Encargada, Roles.Empleada })
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
@@ -54,10 +54,10 @@ namespace FarmaTech.Server.Autenticacion
                 EnsureSucceeded(createResult, "crear el administrador inicial");
             }
 
-            if (!await userManager.IsInRoleAsync(admin, Roles.Administrador))
+            if (!await userManager.IsInRoleAsync(admin, Roles.Encargada))
             {
-                IdentityResult roleResult = await userManager.AddToRoleAsync(admin, Roles.Administrador);
-                EnsureSucceeded(roleResult, "asignar el rol Administrador");
+                IdentityResult roleResult = await userManager.AddToRoleAsync(admin, Roles.Encargada);
+                EnsureSucceeded(roleResult, "asignar el rol Encargada");
             }
         }
 

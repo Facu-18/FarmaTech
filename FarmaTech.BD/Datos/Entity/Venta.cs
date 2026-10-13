@@ -20,5 +20,7 @@ namespace FarmaTech.BD.Datos.Entity
         [Range(typeof(decimal), "0.01", "9999999999999999.99", ErrorMessage = "El total debe ser mayor que cero.")]
         [Precision(18, 2)]
         public decimal Total { get; set; }
+
+        public List<DetalleVenta> Detalles { get; set; } = new();
     }
 }
