@@ -1,0 +1,403 @@
+@page "/ventas/nueva"
+@attribute [Authorize]
+@using System.Globalization
+@inject IHttpService Http
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<PageTitle>Registrar venta</PageTitle>
+
+<h1 class="h3 mb-3">Registrar venta</h1>
+
+@if (confirmacion is not null)
+{
+    <div class="card border-success">
+        <div class="card-header text-bg-success">Venta registrada</div>
+        <div class="card-body">
+            <p class="mb-1"><strong>N.º de venta:</strong> @confirmacion.IdVenta</p>
+            <p class="mb-3"><strong>Fecha:</strong> @confirmacion.Fecha.ToLocalTime().ToString("g", Cultura)</p>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-end">Cantidad</th>
+                            <th class="text-end">Precio unitario</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in confirmacion.Detalles)
+                        {
+                            <tr>
+                                <td>@d.Codigo - @d.Nombre</td>
+                                <td class="text-end">@d.Cantidad</td>
+                                <td class="text-end">@Moneda(d.PrecioUnitario)</td>
+                                <td class="text-end">@Moneda(d.Subtotal)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="fs-4 mb-3"><strong>Total cobrado: @Moneda(confirmacion.Total)</strong></p>
+            <button type="button" class="btn btn-primary" @onclick="NuevaVenta">Nueva venta</button>
+        </div>
+    </div>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+    @if (!string.IsNullOrEmpty(aviso))
+    {
+        <div class="alert alert-success" role="alert">@aviso</div>
+    }
+
+    <form class="row g-2 mb-3" @onsubmit="Buscar" @onsubmit:preventDefault>
+        <div class="col">
+            <input class="form-control" placeholder="Buscar producto por nombre o código" @bind="texto" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary" disabled="@(buscando || enviando)">Buscar</button>
+        </div>
+    </form>
+
+    @if (buscando)
+    {
+        <p>Buscando...</p>
+    }
+    else if (resultados is not null && resultados.Count == 0)
+    {
+        <div class="alert alert-warning" role="alert">
+            Producto no encontrado. Avise a la encargada para darlo de alta.
+        </div>
+    }
+    else if (resultados is not null)
+    {
+        <div class="table-responsive mb-4">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th class="text-end">Precio vigente</th>
+                        <th>Estado</th>
+                        <th style="min-width: 15rem;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in resultados)
+                    {
+                        var producto = p;
+                        <tr>
+                            <td>@producto.Codigo</td>
+                            <td>@producto.Nombre</td>
+                            <td>@producto.Descripcion</td>
+                            <td class="text-end">@Moneda(producto.Precio)</td>
+                            <td>
+                                <span class="badge @(EstaDisponible(producto) ? "text-bg-success" : "text-bg-secondary")">@producto.Estado</span>
+                            </td>
+                            <td>
+                                @if (EstaDisponible(producto))
+                                {
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" min="1" class="form-control" aria-label="Cantidad"
+                                               @bind="cantidades[producto.Id]" />
+                                        <button type="button" class="btn btn-outline-primary" disabled="@enviando"
+                                                @onclick="() => Agregar(producto)">Agregar</button>
+                                    </div>
+                                }
+                                else if (faltanteAbierto == producto.Id)
+                                {
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" min="1" class="form-control" aria-label="Cantidad a pedir"
+                                               @bind="cantidadFaltante" />
+                                        <button type="button" class="btn btn-warning" disabled="@(enviando || enviandoFaltante)"
+                                                @onclick="() => EnviarFaltante(producto)">Confirmar</button>
+                                        <button type="button" class="btn btn-outline-secondary" disabled="@enviandoFaltante"
+                                                @onclick="CerrarFaltante">Cerrar</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-warning" disabled="@enviando"
+                                            @onclick="() => AbrirFaltante(producto)">Agregar a nota de pedido</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <h2 class="h5">Venta actual</h2>
+
+    @if (carrito.Count == 0)
+    {
+        <p class="text-muted">Todavía no se agregaron productos.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="width: 8rem;">Cantidad</th>
+                        <th class="text-end">Precio unitario</th>
+                        <th class="text-end">Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in carrito)
+                    {
+                        var linea = l;
+                        <tr>
+                            <td>@linea.Codigo - @linea.Nombre</td>
+                            <td>
+                                <input type="number" min="1" class="form-control form-control-sm"
+                                       value="@linea.Cantidad" disabled="@enviando"
+                                       @onchange="e => CambiarCantidad(linea, e)" />
+                            </td>
+                            <td class="text-end">@Moneda(linea.PrecioUnitario)</td>
+                            <td class="text-end">@Moneda(linea.Subtotal)</td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger" disabled="@enviando"
+                                        @onclick="() => Quitar(linea)">Quitar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3" class="text-end">Total estimado</th>
+                        <th class="text-end">@Moneda(TotalEstimado)</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+
+    <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-success" disabled="@(carrito.Count == 0 || enviando)" @onclick="Confirmar">
+            @(enviando ? "Registrando..." : "Confirmar venta")
+        </button>
+        <button type="button" class="btn btn-outline-secondary" disabled="@enviando" @onclick="Cancelar">Cancelar</button>
+    </div>
+}
+
+@code {
+    private static readonly CultureInfo Cultura = new("es-AR");
+
+    private sealed class LineaCarrito
+    {
+        public int IdProducto { get; init; }
+        public string Codigo { get; init; } = string.Empty;
+        public string Nombre { get; init; } = string.Empty;
+        public decimal PrecioUnitario { get; set; }
+        public int Cantidad { get; set; }
+        public decimal Subtotal => PrecioUnitario * Cantidad;
+    }
+
+    private readonly List<LineaCarrito> carrito = new();
+    private readonly Dictionary<int, int> cantidades = new();
+
+    private List<ProductoResponseDTO>? resultados;
+    private VentaRegistradaDTO? confirmacion;
+    private string texto = string.Empty;
+    private string? error;
+    private string? aviso;
+    private bool buscando;
+    private bool enviando;
+    private bool enviandoFaltante;
+    private int? faltanteAbierto;
+    private int cantidadFaltante = 1;
+
+    private decimal TotalEstimado => carrito.Sum(l => l.Subtotal);
+
+    private static bool EstaDisponible(ProductoResponseDTO p) => p.Estado == "Disponible";
+
+    private static string Moneda(decimal valor) => valor.ToString("C", Cultura);
+
+    private async Task Buscar()
+    {
+        var termino = texto.Trim();
+        error = null;
+        aviso = null;
+        faltanteAbierto = null;
+
+        if (termino.Length == 0)
+        {
+            error = "Ingrese un nombre o código para buscar.";
+            return;
+        }
+
+        buscando = true;
+        var resp = await Http.GetAsync<List<ProductoResponseDTO>>(
+            $"api/producto/buscar?texto={Uri.EscapeDataString(termino)}");
+        buscando = false;
+
+        if (resp.Error)
+        {
+            resultados = null;
+            error = resp.Mensaje;
+            return;
+        }
+
+        resultados = resp.Respuesta ?? new();
+        foreach (var p in resultados)
+        {
+            cantidades[p.Id] = 1;
+        }
+    }
+
+    private void Agregar(ProductoResponseDTO producto)
+    {
+        error = null;
+        aviso = null;
+
+        var cantidad = cantidades.GetValueOrDefault(producto.Id, 1);
+        if (cantidad < 1)
+        {
+            error = "La cantidad debe ser mayor que cero.";
+            return;
+        }
+
+        var existente = carrito.FirstOrDefault(l => l.IdProducto == producto.Id);
+        if (existente is null)
+        {
+            carrito.Add(new LineaCarrito
+            {
+                IdProducto = producto.Id,
+                Codigo = producto.Codigo,
+                Nombre = producto.Nombre,
+                PrecioUnitario = producto.Precio,
+                Cantidad = cantidad
+            });
+        }
+        else
+        {
+            existente.Cantidad += cantidad;
+            existente.PrecioUnitario = producto.Precio;
+        }
+
+        cantidades[producto.Id] = 1;
+    }
+
+    private void CambiarCantidad(LineaCarrito linea, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var cantidad) && cantidad >= 1)
+        {
+            linea.Cantidad = cantidad;
+        }
+    }
+
+    private void Quitar(LineaCarrito linea) => carrito.Remove(linea);
+
+    private void AbrirFaltante(ProductoResponseDTO producto)
+    {
+        error = null;
+        aviso = null;
+        cantidadFaltante = 1;
+        faltanteAbierto = producto.Id;
+    }
+
+    private void CerrarFaltante() => faltanteAbierto = null;
+
+    private async Task EnviarFaltante(ProductoResponseDTO producto)
+    {
+        if (enviandoFaltante)
+        {
+            return;
+        }
+
+        error = null;
+        aviso = null;
+
+        if (cantidadFaltante < 1)
+        {
+            error = "La cantidad debe ser mayor que cero.";
+            return;
+        }
+
+        enviandoFaltante = true;
+        var dto = new FaltanteDTO { IdProducto = producto.Id, Cantidad = cantidadFaltante };
+        var resp = await Http.PostAsync<FaltanteDTO, int>("api/nota-pedido/faltante", dto);
+        enviandoFaltante = false;
+
+        if (resp.Error)
+        {
+            error = resp.Mensaje;
+            return;
+        }
+
+        aviso = $"\"{producto.Nombre}\" se agregó a la nota de pedido (cantidad: {dto.Cantidad}).";
+        faltanteAbierto = null;
+    }
+
+    private async Task Confirmar()
+    {
+        if (enviando || carrito.Count == 0)
+        {
+            return;
+        }
+
+        error = null;
+        aviso = null;
+        enviando = true;
+
+        var dto = new RegistrarVentaDTO
+        {
+            Items = carrito.Select(l => new ItemVentaDTO { IdProducto = l.IdProducto, Cantidad = l.Cantidad }).ToList()
+        };
+        var resp = await Http.PostAsync<RegistrarVentaDTO, VentaRegistradaDTO>("api/venta/registrar", dto);
+        enviando = false;
+
+        if (resp.Error || resp.Respuesta is null)
+        {
+            error = resp.Mensaje;
+            return;
+        }
+
+        confirmacion = resp.Respuesta;
+        LimpiarVenta();
+    }
+
+    private async Task Cancelar()
+    {
+        var hayDatos = carrito.Count > 0 || resultados is not null || texto.Length > 0;
+        if (hayDatos &&
+            !await JS.InvokeAsync<bool>("confirm", "¿Desea cancelar la operación? Se descartarán los datos ingresados."))
+        {
+            return;
+        }
+
+        LimpiarVenta();
+        Navigation.NavigateTo("");
+    }
+
+    private void NuevaVenta()
+    {
+        confirmacion = null;
+        LimpiarVenta();
+    }
+
+    private void LimpiarVenta()
+    {
+        carrito.Clear();
+        cantidades.Clear();
+        resultados = null;
+        texto = string.Empty;
+        error = null;
+        aviso = null;
+        faltanteAbierto = null;
+    }
+}
