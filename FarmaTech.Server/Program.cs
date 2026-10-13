@@ -91,6 +91,7 @@ builder.Services.AddScoped<IEmpleadaRepositorio, EmpleadaRepositorio>();
 builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 builder.Services.AddScoped<IRepositorio<Producto>, Repositorio<Producto>>();
 builder.Services.AddScoped<IRepositorio<Drogueria>, Repositorio<Drogueria>>();
+builder.Services.AddScoped<IVentaRepositorio, VentaRepositorio>();
 builder.Services.AddScoped<IRepositorio<Venta>, Repositorio<Venta>>();
 builder.Services.AddScoped<IRepositorio<DetalleVenta>, Repositorio<DetalleVenta>>();
 builder.Services.AddScoped<IRepositorio<IngresoMercaderia>, Repositorio<IngresoMercaderia>>();
