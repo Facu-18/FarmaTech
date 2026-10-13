@@ -21,6 +21,8 @@ namespace FarmaTech.Server.Autenticacion
                 }
             }
 
+            await MigrarRolLegadoAsync(scope.ServiceProvider, roleManager);
+
             IConfigurationSection adminSection = configuration.GetSection("BootstrapAdmin");
             string? usuario = adminSection["Usuario"];
             string? pin = adminSection["Pin"];
@@ -59,6 +61,34 @@ namespace FarmaTech.Server.Autenticacion
                 IdentityResult roleResult = await userManager.AddToRoleAsync(admin, Roles.Encargada);
                 EnsureSucceeded(roleResult, "asignar el rol Encargada");
             }
+        }
+
+        // The role "Administrador" was renamed to "Encargada" to match the final ERD.
+        // Moves its users to the new role and removes the legacy one; idempotent.
+        private static async Task MigrarRolLegadoAsync(
+            IServiceProvider services,
+            RoleManager<IdentityRole<int>> roleManager)
+        {
+            const string rolLegado = "Administrador";
+
+            IdentityRole<int>? legado = await roleManager.FindByNameAsync(rolLegado);
+            if (legado is null)
+            {
+                return;
+            }
+
+            var userManager = services.GetRequiredService<UserManager<Empleada>>();
+            foreach (Empleada empleada in await userManager.GetUsersInRoleAsync(rolLegado))
+            {
+                if (!await userManager.IsInRoleAsync(empleada, Roles.Encargada))
+                {
+                    IdentityResult agregar = await userManager.AddToRoleAsync(empleada, Roles.Encargada);
+                    EnsureSucceeded(agregar, $"asignar el rol {Roles.Encargada} a {empleada.UserName}");
+                }
+            }
+
+            IdentityResult borrar = await roleManager.DeleteAsync(legado);
+            EnsureSucceeded(borrar, $"eliminar el rol {rolLegado}");
         }
 
         private static void EnsureSucceeded(IdentityResult result, string operation)

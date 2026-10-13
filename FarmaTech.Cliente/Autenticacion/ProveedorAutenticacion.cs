@@ -28,9 +28,13 @@ namespace FarmaTech.Cliente.Autenticacion
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, sesion.Id.ToString()),
-                new(ClaimTypes.Name, sesionService.Usuario ?? sesion.Id.ToString()),
-                new(ClaimTypes.Role, sesion.Rol)
+                new(ClaimTypes.Name, sesionService.Usuario ?? sesion.Id.ToString())
             };
+
+            IEnumerable<string> roles = sesion.Roles.Count > 0 ? sesion.Roles : new[] { sesion.Rol };
+            claims.AddRange(roles
+                .Where(rol => !string.IsNullOrEmpty(rol))
+                .Select(rol => new Claim(ClaimTypes.Role, rol)));
 
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt")));
         }
