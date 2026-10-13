@@ -1,4 +1,4 @@
-# 03 - Preguntas al cliente (segunda entrevista)
+# Preguntas al cliente (tercera entrevista)
 
 **Materia:** Modelado de Sistemas
 **Proyecto:** FarmaTech - Evaluación 2 Modelado
@@ -6,11 +6,11 @@
 **Dirección:** Parque Liceo 2da sección, Av. Alfonsina Storni 835
 **Entrevistada:** Alicia Ternavasio, propietaria
 
-## Resumen de la primera entrevista
+## Resumen de las entrevistas anteriores
 
-En la primera entrevista surgió que la farmacia no lleva un control formal del stock. La segunda charla tuvo como objetivo entender en profundidad cómo es el flujo real de mercadería y definir hasta dónde llega el alcance del sistema en relación a las droguerías.
+En la primera entrevista surgió que la farmacia no lleva un control formal del stock. Esta entrevista tuvo como objetivo entender en profundidad cómo es el flujo real de mercadería, definir hasta dónde llega el alcance del sistema en relación a las droguerías y confirmar quién puede hacer cada tarea dentro del sistema.
 
-## Preguntas y respuestas (segunda entrevista)
+## Preguntas y respuestas
 
 **P:** En la charla anterior me comentaste que no llevan control de stock. ¿Cómo funciona entonces su flujo de producto o mercadería en el día a día?
 
@@ -28,10 +28,6 @@ En la primera entrevista surgió que la farmacia no lleva un control formal del 
 
 > **R:** Con una droguería trato por WhatsApp con el vendedor que es conocido, y con la otra por lo general pido por alguna diferencia de precio o por algún producto que la otra droguería no tenga, entro a su página web.
 
-## Preguntas complementarias (validación del alcance implementado)
-
-Preguntas realizadas para cerrar los puntos que quedaron abiertos y confirmar el comportamiento del sistema.
-
 **P:** ¿Cada empleada tendría su propio usuario para entrar al sistema, o usan todas el mismo?
 
 > **R:** No, mejor que cada una tenga el suyo. Así sé quién hizo cada venta. Algo simple, un usuario y un número cortito, porque en el mostrador no hay tiempo para contraseñas largas.
@@ -48,18 +44,6 @@ Preguntas realizadas para cerrar los puntos que quedaron abiertos y confirmar el
 
 > **R:** Por el nombre casi siempre, a veces ponen una parte nomás, "ibupro" y ya sale. Y si tienen la caja en la mano, por el código que viene impreso.
 
-**P:** ¿Un cliente suele llevar varios productos en la misma compra?
-
-> **R:** Sí, muchísimo. Viene alguien con la receta y lleva tres o cuatro cosas. Tiene que ser una sola venta con todo junto y que el sistema me diga el total.
-
-**P:** ¿El precio lo escribe la empleada en el momento o lo toma el sistema?
-
-> **R:** No, que lo tome el sistema. Justamente lo que quiero es que no se equivoquen. Yo actualizo los precios y ellas cobran el que está cargado, sin tocar nada.
-
-**P:** ¿Hace falta registrar el medio de pago, descuentos u obras sociales en la venta?
-
-> **R:** Por ahora no. El cobro lo hacemos en la caja como siempre y las obras sociales tienen su propio trámite. Con que quede registrado qué se vendió, cuánto y a qué precio, me alcanza.
-
 **P:** Si un producto está en el sistema pero ese día no lo tienen en el mostrador, ¿qué hace la empleada?
 
 > **R:** Lo anota en la nota de pedido, con cuánto pidió el cliente, y sigue atendiendo. Eso es solo cuando no lo tenemos físicamente, eh; si está en la estantería, se vende y listo.
@@ -67,10 +51,6 @@ Preguntas realizadas para cerrar los puntos que quedaron abiertos y confirmar el
 **P:** ¿Y si el cliente pide algo que ni siquiera está cargado en el sistema?
 
 > **R:** Ahí me avisan a mí y yo lo doy de alta. No quiero que las chicas carguen productos sueltos porque después tengo el mismo remedio cargado tres veces con nombres distintos.
-
-**P:** Al anotar un faltante, ¿conviene indicar a qué droguería pedirlo?
-
-> **R:** Si saben, sí, que lo pongan, porque hay cosas que siempre pido a la misma. Pero si no saben, que lo anoten igual, yo después decido a quién se lo pido.
 
 **P:** ¿Qué estado tiene un faltante una vez anotado?
 
@@ -80,31 +60,17 @@ Preguntas realizadas para cerrar los puntos que quedaron abiertos y confirmar el
 
 > **R:** Son distintos, el ibuprofeno de 400 y el de 600 tienen precio distinto y código distinto. Cada caja como viene es un producto.
 
-**P:** Cuando un producto se deja de vender, ¿lo borramos del sistema?
-
-> **R:** No, borrarlo no, porque quiero que las ventas viejas sigan apareciendo. Que quede como que ya no se vende, y si algún día vuelve, lo activo de nuevo.
-
-**P:** ¿Dos productos pueden tener el mismo código?
-
-> **R:** No, el código es de cada producto. Si me equivoco y cargo uno repetido, que el sistema me avise.
-
 ## Conclusiones
-
-Esta segunda entrevista confirma y ajusta los siguientes puntos del sistema FarmaTech:
 
 - La farmacia opera con reposición diaria: todo lo vendido se repone cada noche mediante pedido a las droguerías. No existe un stock acumulado en depósito.
 - La empleada detecta la ausencia de un producto al momento de buscarlo. No se requieren alertas automáticas de stock mínimo.
-- Cuando un producto no se encuentra, la empleada lo agrega a una nota de pedido dentro del mismo sistema, que queda disponible para que Alicia la consulte al cierre del día.
 - El sistema NO consulta catálogos de droguerías ni genera pedidos automáticos. Alicia se contacta manualmente con cada droguería (por WhatsApp o página web según corresponda) usando la nota de pedido como referencia.
-- Cada empleada ingresa con su propio usuario y PIN. Hay dos roles: **Empleada** (vende, consulta y anota faltantes) y **Encargada** (además da de alta, modifica y da de baja productos y actualiza precios).
-- Una venta puede incluir varios productos. El precio y el total los calcula el sistema con el precio vigente; la empleada no los ingresa. No se registran medio de pago, descuentos ni obras sociales.
-- La búsqueda es por nombre (parcial) o por código. Cada presentación es un producto distinto con código único.
-- La nota de pedido se usa solo cuando el producto existe en el catálogo pero no está físicamente en el mostrador. Lleva cantidad, droguería sugerida opcional y queda en estado **Pendiente**.
-- La baja de un producto es lógica (pasa a **Inactivo**) para conservar el historial de ventas; puede reactivarse.
+- Cada empleada ingresa con su propio usuario y PIN. Hay dos roles: **Empleada** (vende, consulta y anota faltantes) y **Encargada** (además da de alta y modifica productos y actualiza precios).
+- La búsqueda es por nombre (parcial) o por código. Cada presentación es un producto distinto.
+- La nota de pedido se usa solo cuando el producto existe en el catálogo pero no está físicamente en el mostrador. Lleva la cantidad y queda en estado **Pendiente** hasta que Alicia lo pide.
+- Un producto que no existe en el catálogo no va a la nota de pedido: la empleada avisa a la encargada para que lo dé de alta.
 
-**Precisión posterior.** "Cuando un producto no se encuentra" se interpreta como producto **no disponible** en el mostrador (existe en el catálogo pero no se tiene ese día). Un producto que no existe en el catálogo no puede ir a la nota de pedido, porque en el DER final `nota_pedido` solo referencia un producto del catálogo (`id_producto`). Ver [04-caso-de-uso-registrar-venta.md](04-caso-de-uso-registrar-venta.md).
-
-## Visión y alcance corregidos
+## Visión y alcance
 
 **Descripción general.** FarmaTech es un sistema de gestión diseñado para farmacias de barrio que buscan modernizar su operación diaria. Permite registrar las ventas del día, gestionar y consultar precios desde un lugar centralizado, y llevar una nota de pedido con los productos faltantes para que la encargada pueda coordinar la reposición con las droguerías proveedoras, reemplazando el uso de cuadernos y planillas manuales por una herramienta digital accesible para todo el personal del mostrador.
 
@@ -125,15 +91,42 @@ Esta segunda entrevista confirma y ajusta los siguientes puntos del sistema Farm
 - Gestión contable o facturación electrónica
 - Compras online
 
-## Estado de las preguntas pendientes
+## Casos de uso
 
-1. **Estado del producto — Resuelta.** Indica si está activo en el catálogo (Activo/Inactivo); el sistema no controla stock.
-2. **Estado de la nota — Resuelta.** Un faltante se registra como Pendiente hasta que la encargada lo pide.
-3. **Productos que no están en el catálogo — Resuelta.** Los da de alta solo la encargada.
-4. **Presentaciones — Resuelta.** Cada presentación es un producto distinto, con código y precio propios.
-5. **Venta con varios productos y cobro — Resuelta.** Una venta tiene varios productos; no se registran medio de pago ni descuentos.
+| N° | Caso de uso | Actor | Descripción |
+|---|---|---|---|
+| CU1 | **Registrar Venta** (seleccionado) | Empleada de mostrador | Registra una venta con uno o varios productos al precio vigente. |
+| CU2 | Agregar producto a nota de pedido | Empleada de mostrador | Anota un producto del catálogo que no está en el mostrador. Extiende a CU1. |
+| CU3 | Consultar disponibilidad de producto | Empleada de mostrador | Busca el producto por nombre o código para saber si está en el catálogo. |
+| CU4 | Consultar precio de producto | Empleada de mostrador | Consulta el precio vigente de un producto. |
+| CU5 | Actualizar precio de producto | Encargada | Modifica el precio vigente de un producto. |
+| CU6 | Registrar ingreso de mercadería | Encargada | Registra la mercadería recibida de una droguería. |
+| CU7 | Gestionar productos (ABM) | Encargada | Da de alta, modifica y da de baja productos del catálogo. |
+| CU8 | Consultar nota de pedido del día | Encargada | Ve los faltantes pendientes para pedirlos a las droguerías. |
 
-**Abiertas para una próxima iteración** (no afectan lo implementado):
+La Encargada también puede realizar los casos de uso de la Empleada.
+
+## Caso de uso seleccionado: Registrar Venta
+
+**Actor principal:** Empleada de mostrador.
+**Precondición:** la empleada inició sesión con su usuario y PIN.
+**Garantía de éxito:** la venta queda registrada con el precio vigente, la fecha y la empleada que la realizó.
+
+**Flujo básico:**
+
+1. La empleada busca el producto por nombre (parcial) o por código.
+2. El sistema muestra los productos que coinciden con su precio vigente.
+3. La empleada elige el producto y la cantidad; el sistema lo agrega a la venta con su subtotal.
+4. Si hay más productos, se repiten los pasos 1 a 3.
+5. La empleada confirma la venta y el sistema la registra y muestra el total.
+
+**Flujos alternativos:**
+
+- **El producto no está en el mostrador:** la empleada lo agrega a la nota de pedido con la cantidad y continúa con la venta.
+- **El producto no existe en el catálogo:** el sistema informa que no se encontró y la empleada avisa a la encargada para que lo dé de alta.
+- **Cancelación:** antes de confirmar, la empleada cancela y el sistema descarta la venta sin registrar nada.
+
+## Preguntas abiertas para una próxima iteración
 
 - ¿Qué estado toma un faltante una vez pedido (por ejemplo, Pedido) y quién lo marca?
 - Si el mismo producto se anota varias veces en el día, ¿se suman las cantidades en una sola línea?
