@@ -43,8 +43,8 @@ Notas:
 
 - "Agregar producto a nota de pedido" extiende a "Registrar Venta": se accede desde la misma pantalla de búsqueda cuando el producto no está disponible.
 - La Droguería es un actor de apoyo pasivo: no interactúa con el sistema; recibe los pedidos por canales externos (WhatsApp o web) y la encargada los arma usando la nota de pedido como referencia. La línea punteada indica ese contacto manual, no una función del sistema.
-- "Consultar disponibilidad de producto" figura en la lista de casos de uso, pero la tabla de actores y objetivos del PDF no lo asigna a ningún actor. Se lo asignó a la empleada de mostrador (quien detecta la ausencia al buscar) por coherencia con la entrevista; conviene confirmarlo.
-- Los roles del DER son Empleada y Encargada. Se asume que la Encargada también puede realizar los casos de la empleada; el PDF no lo declara.
+- "Consultar disponibilidad de producto" se asigna a la empleada de mostrador: la entrevista confirma que es ella quien busca el producto y detecta si no está.
+- Los roles del DER son Empleada y Encargada. La Encargada también realiza los casos de la empleada (confirmado en las preguntas complementarias de [03-preguntas-al-cliente.md](03-preguntas-al-cliente.md)).
 
 ## Elementos eliminados respecto a la versión anterior
 
