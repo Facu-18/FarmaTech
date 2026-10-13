@@ -1,7 +1,22 @@
-﻿@page "/"
+@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>FarmaTech</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>FarmaTech</h1>
 
-Welcome to your new app.
+<AuthorizeView>
+    <Authorized>
+        <p class="lead">Sesión iniciada como <strong>@context.User.Identity?.Name</strong>.</p>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="ventas/nueva">Registrar venta</a>
+            <a class="btn btn-outline-primary" href="productos">Productos</a>
+            <AuthorizeView Roles="Encargada" Context="encargada">
+                <a class="btn btn-outline-primary" href="productos/nuevo">Nuevo producto</a>
+            </AuthorizeView>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <p class="lead">Sistema de gestión de la farmacia.</p>
+        <a class="btn btn-primary" href="login">Iniciar sesión</a>
+    </NotAuthorized>
+</AuthorizeView>
