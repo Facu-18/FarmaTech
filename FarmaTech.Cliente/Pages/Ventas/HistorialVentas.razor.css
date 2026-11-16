@@ -1,0 +1,60 @@
+.hv-barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+    padding: .85rem;
+    margin-bottom: 1rem;
+}
+
+.hv-campo {
+    min-width: 11rem;
+}
+
+.hv-campo .form-label {
+    margin-bottom: .25rem;
+    font-size: .85rem;
+    color: var(--ft-muted);
+}
+
+.hv-check {
+    margin-bottom: .55rem;
+}
+
+.hv-actualizar {
+    margin-left: auto;
+}
+
+.hv-tabla {
+    overflow: hidden;
+}
+
+.hv-numero,
+.hv-codigo {
+    font-family: var(--ft-fuente-mono);
+    white-space: nowrap;
+}
+
+.hv-codigo {
+    font-size: .85rem;
+    color: var(--ft-muted);
+}
+
+.hv-fila-abierta > td {
+    border-bottom-color: transparent;
+    font-weight: 600;
+}
+
+.hv-detalle > td {
+    background: var(--ft-fondo);
+    padding: .5rem 1rem 1rem;
+}
+
+.hv-detalle table {
+    background: transparent;
+}
+
+.hv-sin-detalle {
+    margin: .5rem 0 0;
+    color: var(--ft-muted);
+}
