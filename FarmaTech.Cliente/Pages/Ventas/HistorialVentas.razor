@@ -1,0 +1,250 @@
+@page "/ventas/historial"
+@attribute [Authorize]
+@using System.Globalization
+@using System.Security.Claims
+@inject IHttpService Http
+@inject AuthenticationStateProvider Autenticacion
+
+<PageTitle>Historial de ventas</PageTitle>
+
+<div class="ft-pagina">
+    <header class="ft-encabezado">
+        <div>
+            <h1>Historial de ventas</h1>
+            <p class="ft-subtitulo">
+                @if (cargando)
+                {
+                    <text>Cargando ventas...</text>
+                }
+                else
+                {
+                    <text>Mostrando @VentasVisibles.Count de @FiltradasPorEmpleada.Count @(FiltradasPorEmpleada.Count == 1 ? "venta" : "ventas"), de la más reciente a la más antigua</text>
+                }
+            </p>
+        </div>
+        <a class="btn btn-primary" href="ventas/nueva"><Icono Nombre="venta" /> Registrar venta</a>
+    </header>
+
+    <div class="ft-tarjeta hv-barra">
+        <div class="hv-campo">
+            <label for="hv-cantidad" class="form-label">Mostrar</label>
+            <select id="hv-cantidad" class="form-select" @bind="limite">
+                <option value="20">Últimas 20</option>
+                <option value="50">Últimas 50</option>
+                <option value="100">Últimas 100</option>
+            </select>
+        </div>
+        <div class="form-check hv-check">
+            <input id="hv-mias" type="checkbox" class="form-check-input" @bind="soloMias" />
+            <label for="hv-mias" class="form-check-label">Solo mis ventas</label>
+        </div>
+        <button type="button" class="btn btn-outline-secondary hv-actualizar" @onclick="Cargar" disabled="@cargando">
+            <Icono Nombre="reactivar" Tamano="16" /> Actualizar
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+
+    @if (cargando)
+    {
+        <div class="ft-tarjeta ft-cargando" role="status">
+            <span class="ft-spinner" aria-hidden="true"></span> Cargando ventas...
+        </div>
+    }
+    else if (string.IsNullOrEmpty(error))
+    {
+        @if (VentasVisibles.Count == 0)
+        {
+            <div class="ft-tarjeta ft-vacio" role="status">
+                <span class="ft-vacio-icono"><Icono Nombre="historial" Tamano="28" /></span>
+                <p class="ft-vacio-titulo">Todavía no hay ventas registradas.</p>
+                <p>Las ventas que se confirmen van a aparecer acá.</p>
+            </div>
+        }
+        else
+        {
+            <div class="ft-tarjeta hv-tabla">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>N° venta</th>
+                                <th>Fecha</th>
+                                <th>Empleada</th>
+                                <th class="text-end">Productos</th>
+                                <th class="text-end">Total</th>
+                                <th class="text-end"><span class="visually-hidden">Detalle</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var v in VentasVisibles)
+                            {
+                                var venta = v;
+                                var detalles = DetallesDe(venta.Id);
+                                var abierta = ventaAbierta == venta.Id;
+                                <tr class="@(abierta ? "hv-fila-abierta" : null)">
+                                    <td class="hv-numero">#@venta.Id</td>
+                                    <td class="text-nowrap">@venta.Fecha.ToString("dd/MM/yyyy HH:mm", Cultura)</td>
+                                    <td>@NombreEmpleada(venta.IdEmpleada)</td>
+                                    <td class="text-end">@detalles.Sum(d => d.Cantidad)</td>
+                                    <td class="ft-monto">@Formato.Moneda(venta.Total)</td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" aria-expanded="@(abierta ? "true" : "false")"
+                                                @onclick="() => Alternar(venta.Id)">
+                                            @(abierta ? "Ocultar" : "Ver detalle")
+                                        </button>
+                                    </td>
+                                </tr>
+                                @if (abierta)
+                                {
+                                    <tr class="hv-detalle">
+                                        <td colspan="6">
+                                            @if (detalles.Count == 0)
+                                            {
+                                                <p class="hv-sin-detalle">Esta venta no tiene productos registrados.</p>
+                                            }
+                                            else
+                                            {
+                                                <table class="table table-sm mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Código</th>
+                                                            <th>Producto</th>
+                                                            <th class="text-end">Cantidad</th>
+                                                            <th class="text-end">Precio unitario</th>
+                                                            <th class="text-end">Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var d in detalles)
+                                                        {
+                                                            var producto = productos.GetValueOrDefault(d.IdProducto);
+                                                            <tr>
+                                                                <td class="hv-codigo">@(producto?.Codigo ?? "-")</td>
+                                                                <td>@(producto?.Nombre ?? $"Producto #{d.IdProducto}")</td>
+                                                                <td class="text-end">@d.Cantidad</td>
+                                                                <td class="ft-monto">@Formato.Moneda(d.PrecioUnitario)</td>
+                                                                <td class="ft-monto">@Formato.Moneda(d.Subtotal)</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    // Shape of the items returned by GET api/venta (the shared VentaDTO has no Id)
+    private sealed class VentaResumen
+    {
+        public int Id { get; set; }
+        public int IdEmpleada { get; set; }
+        public DateTime Fecha { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    private static readonly CultureInfo Cultura = new("es-AR");
+
+    private List<VentaResumen> ventas = new();
+    private ILookup<int, DetalleVentaDTO> detallesPorVenta = Enumerable.Empty<DetalleVentaDTO>().ToLookup(d => d.IdVenta);
+    private Dictionary<int, ProductoResponseDTO> productos = new();
+    private Dictionary<int, string> empleadas = new();
+    private int? idUsuario;
+    private string? nombreUsuario;
+
+    private int limite = 20;
+    private bool soloMias;
+    private int? ventaAbierta;
+    private bool cargando;
+    private string? error;
+
+    private List<VentaResumen> FiltradasPorEmpleada =>
+        soloMias ? ventas.Where(v => v.IdEmpleada == idUsuario).ToList() : ventas;
+
+    private List<VentaResumen> VentasVisibles => FiltradasPorEmpleada.Take(limite).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var estado = await Autenticacion.GetAuthenticationStateAsync();
+        if (int.TryParse(estado.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id))
+        {
+            idUsuario = id;
+        }
+        nombreUsuario = estado.User.Identity?.Name;
+
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        cargando = true;
+        error = null;
+        ventaAbierta = null;
+
+        var tareaVentas = Http.GetAsync<List<VentaResumen>>("api/venta");
+        var tareaDetalles = Http.GetAsync<List<DetalleVentaDTO>>("api/detalle-venta");
+        var tareaProductos = Http.GetAsync<List<ProductoResponseDTO>>("api/producto");
+        // Only the Encargada can list employees; for other roles the names fall back below
+        var tareaEmpleadas = Http.GetAsync<List<EmpleadaResponseDTO>>("api/empleada");
+        await Task.WhenAll(tareaVentas, tareaDetalles, tareaProductos, tareaEmpleadas);
+
+        var respVentas = tareaVentas.Result;
+        var respDetalles = tareaDetalles.Result;
+        if (respVentas.Error || respDetalles.Error)
+        {
+            error = respVentas.Error ? respVentas.Mensaje : respDetalles.Mensaje;
+            ventas = new();
+            cargando = false;
+            return;
+        }
+
+        ventas = (respVentas.Respuesta ?? new())
+            .OrderByDescending(v => v.Fecha)
+            .ThenByDescending(v => v.Id)
+            .ToList();
+        detallesPorVenta = (respDetalles.Respuesta ?? new()).ToLookup(d => d.IdVenta);
+
+        var respProductos = tareaProductos.Result;
+        productos = respProductos.Error || respProductos.Respuesta is null
+            ? new()
+            : respProductos.Respuesta.ToDictionary(p => p.Id);
+
+        var respEmpleadas = tareaEmpleadas.Result;
+        empleadas = respEmpleadas.Error || respEmpleadas.Respuesta is null
+            ? new()
+            : respEmpleadas.Respuesta.ToDictionary(e => e.Id, e => $"{e.Nombre} {e.Apellido}".Trim());
+
+        cargando = false;
+    }
+
+    private List<DetalleVentaDTO> DetallesDe(int idVenta) => detallesPorVenta[idVenta].ToList();
+
+    private string NombreEmpleada(int idEmpleada)
+    {
+        if (empleadas.TryGetValue(idEmpleada, out var nombre) && nombre.Length > 0)
+        {
+            return nombre;
+        }
+
+        if (idEmpleada == idUsuario && !string.IsNullOrEmpty(nombreUsuario))
+        {
+            return nombreUsuario;
+        }
+
+        return $"Empleada #{idEmpleada}";
+    }
+
+    private void Alternar(int idVenta) => ventaAbierta = ventaAbierta == idVenta ? null : idVenta;
+}
